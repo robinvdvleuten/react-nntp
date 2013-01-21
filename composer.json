@@ -17,6 +17,8 @@
         "react/curry": "1.1.*"
     },
     "autoload": {
-        "psr-0": {"React\\NNTP": "src/"}
-    },
+        "psr-0": {
+            "React\\NNTP": "src/"
+        }
+    }
 }
