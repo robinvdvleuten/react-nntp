@@ -15,5 +15,8 @@
         "react/stream": "0.2.*",
         "react/promise": "1.0.*",
         "react/curry": "1.1.*"
-    }
+    },
+    "autoload": {
+        "psr-0": {"React\\NNTP": "src/"}
+    },
 }
