@@ -4,15 +4,32 @@ namespace React\NNTP;
 
 use Evenement\EventEmitter;
 use React\EventLoop\Factory;
-use React\NNTP\Stream\Stream;
+use React\NNTP\Stream\InputStream;
+use React\NNTP\Stream\OutputStream;
 use React\Promise\Deferred;
 use React\Socket\Connection;
 
 class Client extends EventEmitter
 {
+    const RESPONSECODE_READY_POSTING_ALLOWED = 200;
+    const RESPONSECODE_READY_POSTING_PROHIBITED = 201;
+    const RESPONSECODE_GROUP_SELECTED = 211;
+    const RESPONSECODE_OVERVIEW_FOLLOWS = 224;
+    const RESPONSECODE_NO_SUCH_GROUP = 411;
+    const RESPONSECODE_AUTHENTICATION_REQUIRED = 480;
+    const RESPONSECODE_NOT_PERMITTED = 502;
+
+    public $input;
+
     protected $host;
     protected $loop;
     protected $port;
+
+    public static function factory($address, $port)
+    {
+        $loop = Factory::create();
+        $socket = stream_socket_client('tcp://$address:$port');
+    }
 
     public function __construct($host, $port)
     {
@@ -22,7 +39,42 @@ class Client extends EventEmitter
         $this->loop = Factory::create();
     }
 
-    public function authenticate($user, $pass = null)
+    public function connect()
+    {
+        $connection = $this->createConnection();
+
+        $this->input = new InputStream();
+        $this->input->on('error', array($this, 'handleErrorEvent'));
+        $connection->pipe($this->input);
+
+        $this->output = new OutputStream();
+        $this->output->pipe($connection);
+
+        $that = $this;
+        $connection->on('error', function (\Exception $e) use ($that) {
+            $that->input->emit('error', array($e));
+        });
+
+        $this->loop->run();
+    }
+
+    public function handleErrorEvent(\Exception $e)
+    {
+        $this->emit('error', array($e));
+    }
+
+    protected function createConnection()
+    {
+        $address = 'tcp://' . $this->host . ':' . $this->port;
+
+        if (false === $socket = @stream_socket_client($address, $errno, $errstr)) {
+            throw new ConnectionException("Could not bind to $address: $errstr", $errno);
+        }
+
+        return new Connection($socket, $this->loop);
+    }
+
+    /* public function authenticate($user, $pass = null)
     {
         $deferred = new Deferred();
         $that = $this;
@@ -70,9 +122,36 @@ class Client extends EventEmitter
         $this->loop->run();
     }
 
+    /**
+     * Fetch an overview of article(s) in the currently selected group.
+     */
+    /*public function getOverview($range = null, $names = true, $forceNames = true)
+    {
+        $deferred = new Deferred();
+
+        $this->once('data', function ($status, $message) use ($deferred) {
+            if (Client::RESPONSECODE_OVERVIEW_FOLLOWS !== $status) {
+                // return $deferred->reject(new \RuntimeException());
+            }
+        });
+
+        if (is_null($range)) {
+            $command = 'XOVER';
+        } else {
+            $command = 'XOVER ' . $range;
+        }
+
+        $this->emit('send_command', array($command));
+        return $deferred;
+    }
+
     public function handleAuthentication($status, $message, Deferred $deferred)
     {
         // @todo throw an error on an unsuccessfull response.
+        if (Client::RESPONSECODE_NOT_PERMITTED === $status) {
+            return $deferred->reject(new \RuntimeException(sprintf('Error when authentication with NNTP server (%s)', $message)));
+        }
+
         $deferred->resolve(array($status, $message));
     }
 
@@ -90,20 +169,21 @@ class Client extends EventEmitter
             );
         }
 
-        $this->emit('data', array((int) $matches[1], $matches[2]));
+        return $this->emit('data', array((int) $matches[1], $matches[2]));
     }
 
     public function selectGroup($group)
     {
-        $deferred = new Deferred();
+        $that = $this;
+        $this->once('data', function ($status, $message) use ($group, $that) {
+            if (Client::RESPONSECODE_GROUP_SELECTED !== $status) {
+                throw new \RuntimeException(sprintf('Error when selecting group %s', $group));
+            }
 
-        $this->once('data', function ($status, $message) use ($deferred) {
-            // @todo throw an error on an unsuccessfull response.
             $messages = explode(' ', trim($message));
-            $deferred->resolve(new Group($messages[3], $messages[0], $messages[1], $messages[2]));
+            $that->emit('group_selected', array(new Group($messages[3], $messages[0], $messages[1], $messages[2])));
         });
 
-        $this->emit('send_command', array('GROUP ' . $group));
-        return $deferred->promise();
-    }
+        return $this->emit('send_command', array('GROUP ' . $group));
+    } */
 }

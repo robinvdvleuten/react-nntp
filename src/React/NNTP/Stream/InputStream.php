@@ -9,10 +9,8 @@ class InputStream extends WritableStream
     protected $buffer = '';
     protected $client;
 
-    public function __construct(Client $client)
+    public function __construct()
     {
-        $this->client = $client;
-
         // $that = $this;
 
         /* $client->on('end', function () use ($that) {
@@ -29,7 +27,7 @@ class InputStream extends WritableStream
             $tail = array_pop($responses);
 
             foreach ($responses as $response) {
-                $this->client->parseResponse($response);
+                // $this->client->parseResponse($response);
             }
 
             $this->buffer = $tail;

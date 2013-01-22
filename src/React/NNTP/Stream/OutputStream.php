@@ -8,9 +8,9 @@ class OutputStream extends ReadableStream
 {
     protected $client;
 
-    public function __construct(Client $client)
+    public function __construct()
     {
-        $this->client = $client;
+        /* $this->client = $client;
 
         $that = $this;
 
@@ -20,6 +20,6 @@ class OutputStream extends ReadableStream
 
         $client->on('send_command', function ($command) use ($that) {
             $that->emit('data', array($command . "\r\n"));
-        });
+        }); */
     }
 }
