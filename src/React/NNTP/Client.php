@@ -3,86 +3,90 @@
 namespace React\NNTP;
 
 use Evenement\EventEmitter;
-use React\EventLoop\Factory;
+use React\Dns\Resolver\Factory as DnsResolverFactory;
+use React\EventLoop\Factory as EventLoopFactory;
 use React\EventLoop\LoopInterface;
-use React\NNTP\Stream\InputStream;
-use React\NNTP\Stream\OutputStream;
+use React\NNTP\Command\CommandInterface;
 use React\Promise\Deferred;
-use React\Socket\Client as Reactor;
-use React\Socket\ClientInterface;
-use React\Socket\Connection;
-use React\Socket\ConnectionInterface;
+use React\SocketClient\ConnectionManager;
+use React\SocketClient\ConnectionManagerInterface;
+use React\SocketClient\SecureConnectionManager;
 use React\Stream\Stream;
 
 class Client extends EventEmitter
 {
-    public $input;
-
-    protected $host;
+    protected $connectionManager;
     protected $loop;
-    protected $port;
+    protected $secureConnectionManager;
+    protected $stream;
 
-    public static function factory($address, $port)
+    public static function factory($dns = '8.8.8.8')
     {
-        $loop = Factory::create();
-        $socket = new Reactor($loop);
-        $socket->connect($port, $address);
+        $loop = EventLoopFactory::create();
 
-        return new static($socket, $loop);
+        $dnsResolverFactory = new DnsResolverFactory();
+        $dns = $dnsResolverFactory->createCached($dns, $loop);
+
+        $connectionManager = new ConnectionManager($loop, $dns);
+        $secureConnectionManager = new SecureConnectionManager($connectionManager, $loop);
+
+        return new static($loop, $connectionManager, $secureConnectionManager);
     }
 
     /**
      * Constructor.
      */
-    public function __construct(ClientInterface $socket, LoopInterface $loop = null)
+    public function __construct(LoopInterface $loop, ConnectionManagerInterface $connectionManager, ConnectionManagerInterface $secureConnectionManager)
     {
         $this->loop = $loop;
-
-        $socket->on('connection', array($this, 'handleConnect'));
+        $this->connectionManager = $connectionManager;
+        $this->secureConnectionManager = $secureConnectionManager;
     }
 
-    public function connect()
+    public function authenticate($user, $password = null)
     {
-        if (null === $this->loop) {
-            throw new \RuntimeException("A React Loop was not provided during instantiation");
-        }
+        // $this->stream->write("GET / HTTP/1.0\r\nHost: www.google.com\r\n\r\n");
+        // $this->stream->close();
+    }
+
+    public function connect($address, $port)
+    {
+        $that = $this;
+        $this->getConnectionManagerForPort($port)
+            ->getConnection($address, $port)
+            ->then(array($this, 'handleConnect'))
+        ;
 
         $this->loop->run();
     }
 
     /**
      * Triggered when a connection is established with the NNTP server.
-     *
-     * @param \React\Socket\ConnectionInterface $connection
      */
-    public function handleConnect(ConnectionInterface $connection)
+    public function handleConnect(Stream $stream)
     {
-        // Attach listeners to connection events.
-        $connection->on('data', array($this, 'handleData'));
-        $connection->on('end', array($this, 'handleEnd'));
-        $connection->on('error', array($this, 'handleError'));
+        $this->stream = $stream;
+        $this->stream->on('data', array($this, 'handleData'));
+
+        $this->emit('connection');
     }
 
     /**
      * Triggered when data is received from the NNTP server.
-     *
-     * @param  string                            $data
-     * @param  \React\Socket\ConnectionInterface $connection
      */
-    public function handleData($data, ConnectionInterface $connection)
+    public function handleData($data)
     {
         var_dump($data);
-        var_dump($connection->write("Hello World\n"));
     }
 
-    public function handleEnd(ConnectionInterface $connection)
+    public function sendCommand(CommandInterface $command)
     {
-        var_dump(__FUNCTION__);
+
     }
 
-    public function handleError(\Exception $e, ConnectionInterface $connection)
+    protected function getConnectionManagerForPort($port)
     {
-        throw $e;
+        return $this->connectionManager;
     }
 
     /* public function connect()
