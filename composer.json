@@ -13,8 +13,7 @@
     "require": {
         "php": ">=5.3.0",
         "evenement/evenement": "1.0.*@dev",
-        "react/socket": "0.3.*@dev",
-        "react/stream": "0.3.*@dev",
+        "react/react": "dev-socket-client",
         "react/promise": "1.0.*@dev"
     },
     "autoload": {

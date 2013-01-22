@@ -4,21 +4,18 @@ namespace React\NNTP;
 
 use Evenement\EventEmitter;
 use React\EventLoop\Factory;
+use React\EventLoop\LoopInterface;
 use React\NNTP\Stream\InputStream;
 use React\NNTP\Stream\OutputStream;
 use React\Promise\Deferred;
+use React\Socket\Client as Reactor;
+use React\Socket\ClientInterface;
 use React\Socket\Connection;
+use React\Socket\ConnectionInterface;
+use React\Stream\Stream;
 
 class Client extends EventEmitter
 {
-    const RESPONSECODE_READY_POSTING_ALLOWED = 200;
-    const RESPONSECODE_READY_POSTING_PROHIBITED = 201;
-    const RESPONSECODE_GROUP_SELECTED = 211;
-    const RESPONSECODE_OVERVIEW_FOLLOWS = 224;
-    const RESPONSECODE_NO_SUCH_GROUP = 411;
-    const RESPONSECODE_AUTHENTICATION_REQUIRED = 480;
-    const RESPONSECODE_NOT_PERMITTED = 502;
-
     public $input;
 
     protected $host;
@@ -28,18 +25,67 @@ class Client extends EventEmitter
     public static function factory($address, $port)
     {
         $loop = Factory::create();
-        $socket = stream_socket_client('tcp://$address:$port');
+        $socket = new Reactor($loop);
+        $socket->connect($port, $address);
+
+        return new static($socket, $loop);
     }
 
-    public function __construct($host, $port)
+    /**
+     * Constructor.
+     */
+    public function __construct(ClientInterface $socket, LoopInterface $loop = null)
     {
-        $this->host = $host;
-        $this->port = $port;
+        $this->loop = $loop;
 
-        $this->loop = Factory::create();
+        $socket->on('connection', array($this, 'handleConnect'));
     }
 
     public function connect()
+    {
+        if (null === $this->loop) {
+            throw new \RuntimeException("A React Loop was not provided during instantiation");
+        }
+
+        $this->loop->run();
+    }
+
+    /**
+     * Triggered when a connection is established with the NNTP server.
+     *
+     * @param \React\Socket\ConnectionInterface $connection
+     */
+    public function handleConnect(ConnectionInterface $connection)
+    {
+        // Attach listeners to connection events.
+        $connection->on('data', array($this, 'handleData'));
+        $connection->on('end', array($this, 'handleEnd'));
+        $connection->on('error', array($this, 'handleError'));
+    }
+
+    /**
+     * Triggered when data is received from the NNTP server.
+     *
+     * @param  string                            $data
+     * @param  \React\Socket\ConnectionInterface $connection
+     */
+    public function handleData($data, ConnectionInterface $connection)
+    {
+        var_dump($data);
+        var_dump($connection->write("Hello World\n"));
+    }
+
+    public function handleEnd(ConnectionInterface $connection)
+    {
+        var_dump(__FUNCTION__);
+    }
+
+    public function handleError(\Exception $e, ConnectionInterface $connection)
+    {
+        throw $e;
+    }
+
+    /* public function connect()
     {
         $connection = $this->createConnection();
 
