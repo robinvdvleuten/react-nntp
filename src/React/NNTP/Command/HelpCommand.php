@@ -2,9 +2,9 @@
 
 namespace React\NNTP\Command;
 
-class AuthInfoCommand implements CommandInterface
+class HelpCommand implements CommandInterface
 {
-    protected $command = 'AUTHINFO';
+    protected $command = 'HELP';
 
     public function __construct()
     {

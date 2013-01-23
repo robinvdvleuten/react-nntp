@@ -6,8 +6,6 @@ use Evenement\EventEmitter;
 use React\Dns\Resolver\Factory as DnsResolverFactory;
 use React\EventLoop\Factory as EventLoopFactory;
 use React\EventLoop\LoopInterface;
-use React\NNTP\Command\CommandInterface;
-use React\Promise\Deferred;
 use React\SocketClient\ConnectionManager;
 use React\SocketClient\ConnectionManagerInterface;
 use React\SocketClient\SecureConnectionManager;
@@ -15,44 +13,40 @@ use React\Stream\Stream;
 
 class Client extends EventEmitter
 {
+    public $input;
+
     protected $connectionManager;
     protected $loop;
     protected $secureConnectionManager;
-    protected $stream;
 
     public static function factory($dns = '8.8.8.8')
     {
         $loop = EventLoopFactory::create();
 
         $dnsResolverFactory = new DnsResolverFactory();
-        $dns = $dnsResolverFactory->createCached($dns, $loop);
+        $dns = $dnsResolverFactory->createCached('8.8.8.8', $loop);
 
         $connectionManager = new ConnectionManager($loop, $dns);
         $secureConnectionManager = new SecureConnectionManager($connectionManager, $loop);
 
-        return new static($loop, $connectionManager, $secureConnectionManager);
+        return new static($connectionManager, $secureConnectionManager, $loop);
     }
 
     /**
      * Constructor.
      */
-    public function __construct(LoopInterface $loop, ConnectionManagerInterface $connectionManager, ConnectionManagerInterface $secureConnectionManager)
+    public function __construct(ConnectionManagerInterface $connectionManager, ConnectionManagerInterface $secureConnectionManager, LoopInterface $loop = null)
     {
-        $this->loop = $loop;
         $this->connectionManager = $connectionManager;
         $this->secureConnectionManager = $secureConnectionManager;
-    }
+        $this->loop = $loop;
 
-    public function authenticate($user, $password = null)
-    {
-        // $this->stream->write("GET / HTTP/1.0\r\nHost: www.google.com\r\n\r\n");
-        // $this->stream->close();
+        // $socket->on('connection', array($this, 'handleConnect'));
     }
 
     public function connect($address, $port)
     {
-        $that = $this;
-        $this->getConnectionManagerForPort($port)
+        $this->connectionManager
             ->getConnection($address, $port)
             ->then(array($this, 'handleConnect'))
         ;
@@ -62,31 +56,40 @@ class Client extends EventEmitter
 
     /**
      * Triggered when a connection is established with the NNTP server.
+     *
+     * @param \React\Stream\Stream $stream
      */
     public function handleConnect(Stream $stream)
     {
-        $this->stream = $stream;
-        $this->stream->on('data', array($this, 'handleData'));
+        $stream->pipe(new Stream(STDOUT, $this->loop));
 
-        $this->emit('connection');
+        /* // Attach listeners to connection events.
+        $connection->on('data', array($this, 'handleData'));
+        $connection->on('end', array($this, 'handleEnd'));
+        $connection->on('error', array($this, 'handleError')); */
+
+        $this->emit('connection', array($stream));
     }
 
     /**
      * Triggered when data is received from the NNTP server.
+     *
+     * @param  string                            $data
+     * @param  \React\Socket\ConnectionInterface $connection
      */
-    public function handleData($data)
+    public function handleData($data, ConnectionInterface $connection)
     {
         var_dump($data);
     }
 
-    public function sendCommand(CommandInterface $command)
+    public function handleEnd(ConnectionInterface $connection)
     {
-
+        var_dump(__FUNCTION__);
     }
 
-    protected function getConnectionManagerForPort($port)
+    public function handleError(\Exception $e, ConnectionInterface $connection)
     {
-        return $this->connectionManager;
+        throw $e;
     }
 
     /* public function connect()

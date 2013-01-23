@@ -27,6 +27,7 @@ class InputStream extends WritableStream
             $tail = array_pop($responses);
 
             foreach ($responses as $response) {
+                var_dump($responses);
                 // $this->client->parseResponse($response);
             }
 
