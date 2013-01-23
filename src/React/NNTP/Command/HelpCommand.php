@@ -4,10 +4,24 @@ namespace React\NNTP\Command;
 
 class HelpCommand implements CommandInterface
 {
-    protected $command = 'HELP';
-
     public function __construct()
     {
 
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function execute()
+    {
+        return 'HELP';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function expectsMultilineResponse()
+    {
+        return true;
     }
 }
