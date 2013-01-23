@@ -3,22 +3,24 @@
 namespace React\NNTP;
 
 use Evenement\EventEmitter;
+use React\Curry;
 use React\Dns\Resolver\Factory as DnsResolverFactory;
 use React\EventLoop\Factory as EventLoopFactory;
 use React\EventLoop\LoopInterface;
-use React\NNTP\Stream\InputStream;
-use React\NNTP\Stream\OutputStream;
+use React\NNTP\Command\CommandInterface;
+use React\Promise\Deferred;
 use React\SocketClient\ConnectionManager;
 use React\SocketClient\ConnectionManagerInterface;
 use React\SocketClient\SecureConnectionManager;
+use React\Stream\BufferedSink;
 use React\Stream\CompositeStream;
 use React\Stream\Stream;
+use React\Stream\Util;
 
 class Client extends EventEmitter
 {
     public $input;
 
-    protected $buffer;
     protected $connectionManager;
     protected $loop;
     protected $secureConnectionManager;
@@ -52,14 +54,28 @@ class Client extends EventEmitter
 
     }
 
-    public function bufferStream($data)
+    public function bufferMultilineResponse(Response $response, CommandInterface $command, Deferred $deferred, &$buffer, $data)
     {
-        $this->buffer .= $data;
+        // Append the received data to the buffer.
+        $buffer .= $data;
 
-        if (preg_match('/\.\r\n$/', $data, $matches)) {
-            $this->stream->removeListener('data', array($this, 'bufferStream'));
-            var_dump($this->buffer);
+        // Check if we received the end of the multiline response.
+        if (!preg_match('/\.\r\n$/', $data, $matches)) {
+            return;
         }
+
+        // Remove the end line of the multiline response.
+        $buffer = preg_replace('/\r\n\.\r\n$/', '', $buffer);
+
+        // Do not listen for data on the stream anymore.
+        $this->stream->removeAllListeners('data');
+
+        // Let the command's handler process the received multiline response.
+        // @todo Do we need the check for existing handler again?
+        $handlers = $command->getResponseHandlers();
+        call_user_func_array($handlers[$response->getStatusCode()], array($response, $buffer, $deferred));
+
+        return $deferred->resolve($command);
     }
 
     /**
@@ -72,7 +88,7 @@ class Client extends EventEmitter
     {
         $this->connectionManager
             ->getConnection($address, $port)
-            ->then(array($this, 'handleConnect'))
+            ->then(Curry\Bind(array($this, 'handleConnect')))
         ;
 
         $this->loop->run();
@@ -112,11 +128,39 @@ class Client extends EventEmitter
         throw $e;
     }
 
-    public function sendCommand($command)
+    public function sendCommand(CommandInterface $command)
     {
-        $this->buffer = "";
-        $this->stream->on('data', array($this, 'bufferStream'));
+        $deferred = new Deferred();
 
-        $this->stream->write($command . "\r\n");
+        $that = $this;
+        $stream = $this->stream;
+        $this->stream->once('data', function ($data) use ($that, $stream, $command, $deferred) {
+            $handlers = $command->getResponseHandlers();
+            $response = Response::createFromString($data);
+
+            // Check if we received a response expected by the command.
+            if (!isset($handlers[$response->getStatusCode()])) {
+                var_dump("UNKNOWN HANDLER FOR " . $response->getStatusCode());
+                // @todo this seems not to be working.
+                /* return $deferred->reject(new \Exception(sprintf(
+                    'Unexpected response received: "%d %s"',
+                    $response->getStatusCode(),
+                    $response->getMessage()
+                ))); */
+            }
+
+            // It's a multiline response, so process it further.
+            if ($response->isMultilineResponse() && $command->expectsMultilineResponse()) {
+                $buffer = "";
+                return $stream->on('data', Curry\bind(array($that, 'bufferMultilineResponse'), $response, $command, $deferred, $buffer));
+            }
+
+            // Let the command's handler process the received response.
+            call_user_func_array($handlers[$response->getStatusCode()], array($response));
+            $deferred->resolve($command);
+        });
+
+        $this->stream->write($command->execute() . "\r\n");
+        return $deferred->promise();
     }
 }

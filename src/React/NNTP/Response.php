@@ -1,4 +1,5 @@
 <?php
+
 namespace React\NNTP;
 
 /**
@@ -6,7 +7,7 @@ namespace React\NNTP;
  *
  * @author Ramon Kleiss <ramon@cubilon.nl>
  */
-class Response
+class Response implements ResponseInterface
 {
     /**
      * @var integer
