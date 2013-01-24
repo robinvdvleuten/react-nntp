@@ -9,6 +9,7 @@ use React\EventLoop\Factory as EventLoopFactory;
 use React\EventLoop\LoopInterface;
 use React\NNTP\Command\CommandInterface;
 use React\Promise\Deferred;
+use React\Promise\ResolverInterface;
 use React\SocketClient\ConnectionManager;
 use React\SocketClient\ConnectionManagerInterface;
 use React\SocketClient\SecureConnectionManager;
@@ -19,7 +20,7 @@ use React\Stream\Util;
 
 class Client extends EventEmitter
 {
-    public $input;
+    public $buffer;
 
     protected $connectionManager;
     protected $loop;
@@ -54,10 +55,10 @@ class Client extends EventEmitter
 
     }
 
-    public function bufferMultilineResponse(Response $response, CommandInterface $command, Deferred $deferred, &$buffer, $data)
+    public function bufferMultilineResponse(Response $response, CommandInterface $command, ResolverInterface $resolver, $data)
     {
         // Append the received data to the buffer.
-        $buffer .= $data;
+        $this->buffer .= $data;
 
         // Check if we received the end of the multiline response.
         if (!preg_match('/\.\r\n$/', $data, $matches)) {
@@ -65,7 +66,7 @@ class Client extends EventEmitter
         }
 
         // Remove the end line of the multiline response.
-        $buffer = preg_replace('/\r\n\.\r\n$/', '', $buffer);
+        $this->buffer = preg_replace('/\r\n\.\r\n$/', '', $this->buffer);
 
         // Do not listen for data on the stream anymore.
         $this->stream->removeAllListeners('data');
@@ -73,9 +74,9 @@ class Client extends EventEmitter
         // Let the command's handler process the received multiline response.
         // @todo Do we need the check for existing handler again?
         $handlers = $command->getResponseHandlers();
-        call_user_func_array($handlers[$response->getStatusCode()], array($response, $buffer, $deferred));
+        call_user_func_array($handlers[$response->getStatusCode()], array($response, $this->buffer));
 
-        return $deferred->resolve($command);
+        return $resolver->resolve($command);
     }
 
     /**
@@ -137,6 +138,7 @@ class Client extends EventEmitter
         $this->stream->once('data', function ($data) use ($that, $stream, $command, $deferred) {
             $handlers = $command->getResponseHandlers();
             $response = Response::createFromString($data);
+            $resolver = $deferred->resolver();
 
             // Check if we received a response expected by the command.
             if (!isset($handlers[$response->getStatusCode()])) {
@@ -151,13 +153,13 @@ class Client extends EventEmitter
 
             // It's a multiline response, so process it further.
             if ($response->isMultilineResponse() && $command->expectsMultilineResponse()) {
-                $buffer = "";
-                return $stream->on('data', Curry\bind(array($that, 'bufferMultilineResponse'), $response, $command, $deferred, $buffer));
+                $that->buffer = "";
+                return $stream->on('data', Curry\bind(array($that, 'bufferMultilineResponse'), $response, $command, $resolver));
             }
 
             // Let the command's handler process the received response.
             call_user_func_array($handlers[$response->getStatusCode()], array($response));
-            $deferred->resolve($command);
+            $resolver->resolve($command);
         });
 
         $this->stream->write($command->execute() . "\r\n");

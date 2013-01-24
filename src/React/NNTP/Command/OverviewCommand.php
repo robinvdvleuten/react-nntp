@@ -35,6 +35,11 @@ class OverviewCommand implements CommandInterface
         return true;
     }
 
+    public function getArticles()
+    {
+        return $this->articles;
+    }
+
     /**
      * {@inheritDoc}
      */
