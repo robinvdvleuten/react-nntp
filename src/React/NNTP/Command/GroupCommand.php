@@ -55,6 +55,8 @@ class GroupCommand implements CommandInterface
     {
         $parts = explode(' ', $response->getMessage());
         $this->group = new Group($parts[3], $parts[0], $parts[1], $parts[2]);
+
+        var_dump($this->group);
     }
 
     public function handleErrorResponse(ResponseInterface $response)
