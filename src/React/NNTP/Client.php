@@ -2,7 +2,6 @@
 
 namespace React\NNTP;
 
-use Evenement\EventEmitter;
 use React\Curry;
 use React\Dns\Resolver\Factory as DnsResolverFactory;
 use React\EventLoop\Factory as EventLoopFactory;
@@ -20,9 +19,8 @@ use React\Stream\Stream;
 use React\Stream\Util;
 use RuntimeException;
 
-class Client extends EventEmitter
+class Client
 {
-    public $buffer;
     public $loop;
     public $stream;
 
@@ -156,26 +154,26 @@ class Client extends EventEmitter
                 $messageParts = explode("\r\n", $response->getMessage());
                 // Remove the first 'follows' message from the parts.
                 array_shift($messageParts);
+                // Create a buffer string from the message parts.
+                $buffer = implode("\r\n", $messageParts);
 
-                $that->buffer = implode("\r\n", $messageParts);
-
-                return $that->stream->on('data', function ($data) use ($response, $handlers, $command, $deferred, $that) {
+                return $that->stream->on('data', function ($data) use (&$buffer, $response, $handlers, $command, $deferred, $that) {
                     // Append the received data to the buffer.
-                    $that->buffer .= $data;
+                    $buffer .= $data;
 
                     if (!preg_match('/\.\r\n$/', $data, $matches)) {
                         return;
                     }
 
                     // Remove the end line of the multiline response.
-                    $that->buffer = preg_replace('/\r\n\.\r\n$/', '', $that->buffer);
+                    $buffer = preg_replace('/\r\n\.\r\n$/', '', $buffer);
 
                     // Do not listen for data on the stream anymore.
                     $that->stream->removeAllListeners('data');
 
                     // Let the command's handler process the received multiline response.
                     // @todo Do we need the check for existing handler again?
-                    call_user_func_array($handlers[$response->getStatusCode()], array($response, $that->buffer));
+                    call_user_func_array($handlers[$response->getStatusCode()], array($response, $buffer));
 
                     // Resolve the multiline result of the command.
                     return $deferred->resolve($command);
