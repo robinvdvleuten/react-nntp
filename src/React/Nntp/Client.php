@@ -151,7 +151,15 @@ class Client
                 // Create a buffer string from the message parts.
                 $buffer = implode("\r\n", $messageParts);
 
-                return $that->stream->on('data', function ($data) use (&$buffer, $response, $handlers, $command, $deferred, $that) {
+                // Did we already reveived the multiline response?
+                if (preg_match('/\.\r\n$/', $data, $matches)) {
+                    // Let the command's handler process the received multiline response.
+                    call_user_func_array($handlers[$command->getResponse()->getStatusCode()], array($command->getResponse(), $buffer));
+                    // Resolve the multiline result of the command.
+                    return $deferred->resolve($command);
+                }
+
+                return $that->stream->on('data', function ($data) use (&$buffer, $handlers, $command, $deferred, $that) {
                     // Append the received data to the buffer.
                     $buffer .= $data;
 
@@ -167,7 +175,7 @@ class Client
 
                     // Let the command's handler process the received multiline response.
                     // @todo Do we need the check for existing handler again?
-                    call_user_func_array($handlers[$response->getStatusCode()], array($response, $buffer));
+                    call_user_func_array($handlers[$command->getResponse()->getStatusCode()], array($command->getResponse(), $buffer));
 
                     // Resolve the multiline result of the command.
                     return $deferred->resolve($command);
