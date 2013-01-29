@@ -5,6 +5,7 @@ namespace React\Nntp;
 use React\Dns\Resolver\Factory as DnsResolverFactory;
 use React\EventLoop\Factory as EventLoopFactory;
 use React\EventLoop\LoopInterface;
+use React\Nntp\Command\AuthInfoCommand;
 use React\Nntp\Command\CommandInterface;
 use React\Promise\Deferred;
 use React\SocketClient\Connector;
@@ -49,22 +50,19 @@ class Client
         $deferred = new Deferred();
         $that = $this;
 
+        $command = new AuthInfoCommand('user', $username);
         return $this
-            ->sendCommand("AUTHINFO user " . $username)
-            ->then(function (Response $response) use ($password, $deferred, $that) {
-                if (ResponseInterface::AUTHENTICATION_CONTINUE === $response->getStatusCode()) {
-                    $that->stream->once('data', function ($data) use ($deferred) {
-                        $response = Response::createFromString($data);
-                        return $deferred->resolve($response);
-                    });
-
-                    return $that->sendCommand("AUTHINFO pass " . $password);
+            ->sendCommand($command)
+            ->then(function (AuthInfoCommand $command) use ($password, $deferred, $that) {
+                if (ResponseInterface::AUTHENTICATION_CONTINUE === $command->getResponse()->getStatusCode()) {
+                    $command = new AuthInfoCommand('pass', $password);
+                    return $that->sendCommand($command);
                 }
 
-                return $deferred->resolve($response);
+                return $deferred->resolve($command);
             })
-            ->then(function (Response $response) {
-                if (ResponseInterface::AUTHENTICATION_ACCEPTED !== $response->getStatusCode()) {
+            ->then(function (AuthInfoCommand $command) {
+                if (ResponseInterface::AUTHENTICATION_ACCEPTED !== $command->getResponse()->getStatusCode()) {
                     throw new RuntimeException(sprintf(
                         "Could not authenticate with the provided username/password: [%d] %s",
                         $response->getStatusCode(),
@@ -72,7 +70,7 @@ class Client
                     ));
                 }
 
-                return $response;
+                return $command;
             });
     }
 
@@ -133,6 +131,8 @@ class Client
 
         $this->stream->once('data', function ($data) use ($command, $deferred, $that) {
             $response = Response::createFromString($data);
+            $command->setResponse($response);
+
             $handlers = $command->getResponseHandlers();
 
             // Check if we received a response expected by the command.

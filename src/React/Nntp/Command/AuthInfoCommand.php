@@ -7,13 +7,13 @@ use React\Nntp\ResponseInterface;
 
 class AuthInfoCommand extends AbstractCommand
 {
-    protected $password;
-    protected $username;
+    protected $type;
+    protected $value;
 
-    public function __construct($username, $password)
+    public function __construct($type, $value)
     {
-        $this->username = $username;
-        $this->password = $password;
+        $this->type = $type;
+        $this->value = $value;
     }
 
     /**
@@ -21,7 +21,7 @@ class AuthInfoCommand extends AbstractCommand
      */
     public function execute()
     {
-        return 'AUTHINFO user ' . $this->username;
+        return 'AUTHINFO ' . $this->type . ' ' . $this->value;
     }
 
     /**
@@ -50,9 +50,10 @@ class AuthInfoCommand extends AbstractCommand
         );
     }
 
-    public function handleResponse(ResponseInterface $response, $buffer)
+    public function handleResponse(ResponseInterface $response)
     {
-        var_dump($response);
+        // We do nothing with the response here.
+        return;
     }
 
     public function handleErrorResponse(ResponseInterface $response)

@@ -2,13 +2,33 @@
 
 namespace React\Nntp\Command;
 
+use React\Nntp\ResponseInterface;
+
 /**
- * Base class for Nntp commands.
+ * Abstract base class for Nntp commands.
  *
  * @author Robin van der Vleuten <robinvdvleuten@gmail.com>
  */
-class AbstractCommand implements CommandInterface
+abstract class AbstractCommand implements CommandInterface
 {
+    protected $response;
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getResponse()
+    {
+        return $this->response;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setResponse(ResponseInterface $response)
+    {
+        $this->response = $response;
+    }
+
     /**
      * {@inheritdoc}
      */
