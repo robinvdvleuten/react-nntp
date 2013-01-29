@@ -1,6 +1,6 @@
 <?php
 
-namespace React\NNTP\Exception;
+namespace React\Nntp\Exception;
 
 class ConnectionException extends \ErrorException
 {

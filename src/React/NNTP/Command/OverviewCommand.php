@@ -1,9 +1,9 @@
 <?php
 
-namespace React\NNTP\Command;
+namespace React\Nntp\Command;
 
-use React\NNTP\Group;
-use React\NNTP\ResponseInterface;
+use React\Nntp\Group;
+use React\Nntp\ResponseInterface;
 
 class OverviewCommand implements CommandInterface
 {

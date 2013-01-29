@@ -1,6 +1,6 @@
 <?php
 
-namespace React\NNTP;
+namespace React\Nntp;
 
 class Group
 {

@@ -1,22 +1,16 @@
 <?php
 
-namespace React\NNTP;
+namespace React\Nntp;
 
-use React\Curry;
 use React\Dns\Resolver\Factory as DnsResolverFactory;
 use React\EventLoop\Factory as EventLoopFactory;
 use React\EventLoop\LoopInterface;
-use React\NNTP\Command\CommandInterface;
+use React\Nntp\Command\CommandInterface;
 use React\Promise\Deferred;
-use React\Promise\ResolverInterface;
-use React\Promise\When;
 use React\SocketClient\Connector;
 use React\SocketClient\ConnectorInterface;
 use React\SocketClient\SecureConnector;
-use React\Stream\BufferedSink;
-use React\Stream\CompositeStream;
 use React\Stream\Stream;
-use React\Stream\Util;
 use RuntimeException;
 
 class Client

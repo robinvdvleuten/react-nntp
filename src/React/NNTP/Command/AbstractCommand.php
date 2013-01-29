@@ -1,9 +1,9 @@
 <?php
 
-namespace React\NNTP\Command;
+namespace React\Nntp\Command;
 
 /**
- * Base class for NNTP commands.
+ * Base class for Nntp commands.
  *
  * @author Robin van der Vleuten <robinvdvleuten@gmail.com>
  */

@@ -1,12 +1,7 @@
 <?php
 
-namespace React\NNTP;
+namespace React\Nntp;
 
-/**
- * Represents a initial response line
- *
- * @author Ramon Kleiss <ramon@cubilon.nl>
- */
 class Response implements ResponseInterface
 {
     /**

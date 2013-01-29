@@ -1,11 +1,11 @@
 <?php
 
-namespace React\NNTP\Command;
+namespace React\Nntp\Command;
 
-use React\NNTP\Response;
+use React\Nntp\Response;
 
 /**
- * Interface for NNTP commands.
+ * Interface for Nntp commands.
  *
  * @author Robin van der Vleuten <robinvdvleuten@gmail.com>
  */

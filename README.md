@@ -9,10 +9,10 @@ Here is a simple example that fetches the first 100 articles from the 'php.doc' 
 of the PHP mailing list.
 
 ```php
-use React\NNTP\Client::factory;
-use React\NNTP\Command\GroupCommand;
-use React\NNTP\Command\OverviewCommand;
-use React\NNTP\Command\OverviewFormatCommand;
+use React\Nntp\Client::factory;
+use React\Nntp\Command\GroupCommand;
+use React\Nntp\Command\OverviewCommand;
+use React\Nntp\Command\OverviewFormatCommand;
 
 $client = Client::factory();
 
