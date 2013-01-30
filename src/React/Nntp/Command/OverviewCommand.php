@@ -5,7 +5,7 @@ namespace React\Nntp\Command;
 use React\Nntp\Group;
 use React\Nntp\ResponseInterface;
 
-class OverviewCommand implements CommandInterface
+class OverviewCommand extends AbstractCommand
 {
     protected $articles;
     protected $format;

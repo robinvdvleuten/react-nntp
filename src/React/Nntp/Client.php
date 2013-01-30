@@ -8,10 +8,8 @@ use React\EventLoop\LoopInterface;
 use React\Nntp\Command\AuthInfoCommand;
 use React\Nntp\Command\CommandInterface;
 use React\Promise\Deferred;
-use React\SocketClient\Connector;
 use React\SocketClient\ConnectorInterface;
 use React\SocketClient\SecureConnector;
-use React\Stream\Stream;
 use RuntimeException;
 
 class Client
@@ -22,12 +20,13 @@ class Client
     protected $connector;
     protected $secureConnector;
 
-    public static function factory($dns = '8.8.8.8')
+    public static function factory($dns = '8.8.8.8', $loop = null)
     {
-        $loop = EventLoopFactory::create();
+        // Create a loop instance if non is provided.
+        $loop = $loop ?: EventLoopFactory::create();
 
         $dnsResolverFactory = new DnsResolverFactory();
-        $dns = $dnsResolverFactory->createCached('8.8.8.8', $loop);
+        $dns = $dnsResolverFactory->createCached($dns, $loop);
 
         $connector = new Connector($loop, $dns);
         $secureConnector = new SecureConnector($connector, $loop);
@@ -162,6 +161,7 @@ class Client
                 return $that->stream->on('data', function ($data) use (&$buffer, $handlers, $command, $deferred, $that) {
                     // Append the received data to the buffer.
                     $buffer .= $data;
+                    // flush();
 
                     if (!preg_match('/\.\r\n$/', $data, $matches)) {
                         return;

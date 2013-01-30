@@ -5,7 +5,7 @@ namespace React\Nntp\Command;
 use React\Nntp\Group;
 use React\Nntp\ResponseInterface;
 
-class OverviewFormatCommand implements CommandInterface
+class OverviewFormatCommand extends AbstractCommand
 {
     protected $format;
 
@@ -39,9 +39,9 @@ class OverviewFormatCommand implements CommandInterface
             ResponseInterface::GROUPS_FOLLOW => array(
                 $this, 'handleResponse'
             ),
-            /* ResponseInterface::NO_SUCH_GROUP => array(
+            ResponseInterface::NO_SUCH_GROUP => array(
                 $this, 'handleErrorResponse'
-            ) */
+            )
         );
     }
 

@@ -2,7 +2,7 @@
 
 namespace React\Nntp\Command;
 
-use React\Nntp\Response;
+use React\Nntp\ResponseInterface;
 
 /**
  * Interface for Nntp commands.
@@ -11,6 +11,9 @@ use React\Nntp\Response;
  */
 interface CommandInterface
 {
+    public function getResponse();
+    public function setResponse(ResponseInterface $response);
+
     public function execute();
     public function expectsMultilineResponse();
     public function getResponseHandlers();

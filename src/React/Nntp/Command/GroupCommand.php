@@ -5,7 +5,7 @@ namespace React\Nntp\Command;
 use React\Nntp\Group;
 use React\Nntp\ResponseInterface;
 
-class GroupCommand implements CommandInterface
+class GroupCommand extends AbstractCommand
 {
     protected $group;
     protected $name;

@@ -36,7 +36,7 @@ class Response implements ResponseInterface
      */
     public static function createFromString($response)
     {
-        if (!preg_match('/^(\d{3}) ([\s\S]+)$/', trim($response), $matches)) {
+        if (!preg_match('/^(\d{3}) (.+)$/s', trim($response), $matches)) {
             throw new \InvalidArgumentException(
                 sprintf('Invalid response: "%s"', trim($response))
             );
