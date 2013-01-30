@@ -23,7 +23,7 @@ Here is a simple example that fetches the first 100 articles from the 'php.doc' 
 of the PHP mailing list.
 
 ```php
-use React\Nntp\Client::factory;
+use React\Nntp\Client;
 use React\Nntp\Command\GroupCommand;
 use React\Nntp\Command\OverviewCommand;
 use React\Nntp\Command\OverviewFormatCommand;
