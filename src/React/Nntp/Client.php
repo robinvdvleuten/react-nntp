@@ -8,6 +8,7 @@ use React\EventLoop\LoopInterface;
 use React\Nntp\Command\AuthInfoCommand;
 use React\Nntp\Command\CommandInterface;
 use React\Promise\Deferred;
+use React\SocketClient\Connector as BaseConnector;
 use React\SocketClient\ConnectorInterface;
 use React\SocketClient\SecureConnector;
 use RuntimeException;
@@ -28,7 +29,8 @@ class Client
         $dnsResolverFactory = new DnsResolverFactory();
         $dns = $dnsResolverFactory->createCached($dns, $loop);
 
-        $connector = new Connector($loop, $dns);
+        $baseConnector = new BaseConnector($loop, $dns);
+        $connector = new Connector($baseConnector, $loop);
         $secureConnector = new SecureConnector($connector, $loop);
 
         return new static($connector, $secureConnector, $loop);
