@@ -7,9 +7,10 @@ use React\EventLoop\LoopInterface;
 use React\Nntp\Command\AuthInfoCommand;
 use React\Nntp\Command\CommandInterface;
 use React\Promise\Deferred;
-use React\SocketClient\Connector as BaseConnector;
+use React\SocketClient\Connector;
 use React\SocketClient\ConnectorInterface;
 use React\SocketClient\SecureConnector;
+use React\Stream\Stream;
 use RuntimeException;
 
 class Client
@@ -22,8 +23,7 @@ class Client
 
     public static function factory(LoopInterface $loop, Resolver $resolver)
     {
-        $baseConnector = new BaseConnector($loop, $resolver);
-        $connector = new Connector($baseConnector, $loop);
+        $connector = new Connector($loop, $resolver);
         $secureConnector = new SecureConnector($connector, $loop);
 
         return new static($loop, $connector, $secureConnector);
