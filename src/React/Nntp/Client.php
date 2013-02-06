@@ -2,8 +2,7 @@
 
 namespace React\Nntp;
 
-use React\Dns\Resolver\Factory as DnsResolverFactory;
-use React\EventLoop\Factory as EventLoopFactory;
+use React\Dns\Resolver\Resolver;
 use React\EventLoop\LoopInterface;
 use React\Nntp\Command\AuthInfoCommand;
 use React\Nntp\Command\CommandInterface;
@@ -15,31 +14,25 @@ use RuntimeException;
 
 class Client
 {
-    public $loop;
     public $stream;
 
-    protected $connector;
-    protected $secureConnector;
+    private $connector;
+    private $loop;
+    private $secureConnector;
 
-    public static function factory($dns = '8.8.8.8', $loop = null)
+    public static function factory(LoopInterface $loop, Resolver $resolver)
     {
-        // Create a loop instance if non is provided.
-        $loop = $loop ?: EventLoopFactory::create();
-
-        $dnsResolverFactory = new DnsResolverFactory();
-        $dns = $dnsResolverFactory->createCached($dns, $loop);
-
-        $baseConnector = new BaseConnector($loop, $dns);
+        $baseConnector = new BaseConnector($loop, $resolver);
         $connector = new Connector($baseConnector, $loop);
         $secureConnector = new SecureConnector($connector, $loop);
 
-        return new static($connector, $secureConnector, $loop);
+        return new static($loop, $connector, $secureConnector);
     }
 
     /**
      * Constructor.
      */
-    public function __construct(ConnectorInterface $connector, ConnectorInterface $secureConnector, LoopInterface $loop = null)
+    public function __construct(LoopInterface $loop, ConnectorInterface $connector, ConnectorInterface $secureConnector)
     {
         $this->connector = $connector;
         $this->secureConnector = $secureConnector;

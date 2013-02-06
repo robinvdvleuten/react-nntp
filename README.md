@@ -23,12 +23,12 @@ Here is a simple example that fetches the first 100 articles from the 'php.doc' 
 of the PHP mailing list.
 
 ```php
-use React\Nntp\Client;
-use React\Nntp\Command\GroupCommand;
-use React\Nntp\Command\OverviewCommand;
-use React\Nntp\Command\OverviewFormatCommand;
+$loop = React\EventLoop\Factory::create();
 
-$client = Client::factory();
+$dnsResolverFactory = new React\Dns\Resolver\Factory();
+$dns = $dnsResolverFactory->createCached('8.8.8.8', $loop);
+
+$client = React\Nntp\Client::factory($loop, $dns);
 
 $group = null;
 $format = null;
@@ -36,22 +36,22 @@ $format = null;
 $client
     ->connect('news.php.net', 119)
     ->then(function ($response) use ($client) {
-        $command = new OverviewFormatCommand();
+        $command = new React\Nntp\Command\OverviewFormatCommand();
         return $client->sendCommand($command);
     })
-    ->then(function (OverviewFormatCommand $command) use (&$format, $client) {
+    ->then(function (React\Nntp\Command\OverviewFormatCommand $command) use (&$format, $client) {
         $format = $command->getFormat();
 
-        $command = new GroupCommand('php.doc');
+        $command = new React\Nntp\Command\GroupCommand('php.doc');
         return $client->sendCommand($command);
     })
-    ->then(function (GroupCommand $command) use (&$group, &$format, $client) {
+    ->then(function (React\Nntp\Command\GroupCommand $command) use (&$group, &$format, $client) {
         $group = $command->getGroup();
 
-        $command = new OverviewCommand($group->getFirst() . '-' . ($group->getFirst() + 99), $format);
+        $command = new React\Nntp\Command\OverviewCommand($group->getFirst() . '-' . ($group->getFirst() + 99), $format);
         return $client->sendCommand($command);
     })
-    ->then(function (OverviewCommand $command) use ($client) {
+    ->then(function (React\Nntp\Command\OverviewCommand $command) use ($client) {
         $articles = $command->getArticles();
         // Process the articles further.
 
