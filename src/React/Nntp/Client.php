@@ -18,11 +18,10 @@ use RuntimeException;
 
 class Client
 {
-    public $stream;
-
     private $connector;
     private $loop;
     private $secureConnector;
+    private $stream;
 
     public static function factory(LoopInterface $loop, Resolver $resolver)
     {
@@ -100,7 +99,7 @@ class Client
 
         $this->stream = $stream;
         // $this->stream->pipe(new Stream(STDOUT, $this->loop));
-        $this->stream->once('data', function ($data) use ($deferred) {
+        $this->getStream()->once('data', function ($data) use ($deferred) {
             $response = Response::createFromString($data);
             // @todo Check if it is a 200 response.
 
@@ -121,18 +120,23 @@ class Client
         return $e;
     }
 
+    public function getStream()
+    {
+        return $this->stream;
+    }
+
     public function sendCommand(CommandInterface $command)
     {
         $deferred = new Deferred();
         $that = $this;
 
-        $this->stream->on('data', function ($data) use ($command, $deferred, $that) {
+        $this->getStream()->on('data', function ($data) use ($command, $deferred, $that) {
             if (empty($data)) {
                 return;
             }
 
             // Do not listen to incoming data events anymore.
-            $that->stream->removeAllListeners('data');
+            $that->getStream()->removeAllListeners('data');
 
             $response = Response::createFromString($data);
             $command->setResponse($response);
@@ -154,13 +158,13 @@ class Client
                 $command->setResponse($response);
 
                 if (!$response->isFinished()) {
-                    return $that->stream->on('data', function ($data) use ($command, $response, $handlers) {
+                    return $that->getStream()->on('data', function ($data) use ($command, $response, $handlers) {
                         $lines = explode("\r\n", $data);
                         $response->appendLines($lines);
 
                         if ($response->isFinished()) {
                             // Do not listen for data on the stream anymore.
-                            $that->stream->removeAllListeners('data');
+                            $that->getStream()->removeAllListeners('data');
 
                             // Let the command's handler process the received multiline response.
                             call_user_func_array($handlers[$response->getStatusCode()], array($response));
@@ -177,7 +181,7 @@ class Client
             return $deferred->resolve($command);
         });
 
-        $this->stream->write($command->execute() . "\r\n");
+        $this->getStream()->write($command->execute() . "\r\n");
         return $deferred->promise();
     }
 
