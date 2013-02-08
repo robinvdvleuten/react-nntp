@@ -2,7 +2,7 @@
 
 namespace React\Nntp\Command;
 
-use React\Nntp\ResponseInterface;
+use React\Nntp\Response\ResponseInterface;
 
 /**
  * Interface for Nntp commands.

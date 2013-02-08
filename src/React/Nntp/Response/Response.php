@@ -1,18 +1,18 @@
 <?php
 
-namespace React\Nntp;
+namespace React\Nntp\Response;
 
 class Response implements ResponseInterface
 {
     /**
      * @var integer
      */
-    protected $statusCode;
+    private $statusCode;
 
     /**
      * @var string
      */
-    protected $message;
+    private $message;
 
     /**
      * Constructor

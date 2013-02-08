@@ -3,7 +3,8 @@
 namespace React\Nntp\Command;
 
 use React\Nntp\Group;
-use React\Nntp\ResponseInterface;
+use React\Nntp\Response\MultilineResponseInterface;
+use React\Nntp\Response\ResponseInterface;
 
 class OverviewCommand extends AbstractCommand
 {
@@ -55,13 +56,12 @@ class OverviewCommand extends AbstractCommand
         );
     }
 
-    public function handleResponse(ResponseInterface $response, $buffer)
+    public function handleResponse(MultilineResponseInterface $response)
     {
         $this->articles = array();
 
-        $articleStrings = explode("\r\n", trim($buffer));
-        foreach ($articleStrings as $articleString) {
-            $articleParts = explode("\t", $articleString);
+        foreach ($response->getLines() as $line) {
+            $articleParts = explode("\t", $line);
 
             $field = 0;
             $article = array();

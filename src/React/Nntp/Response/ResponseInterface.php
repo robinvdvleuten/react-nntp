@@ -1,6 +1,6 @@
 <?php
 
-namespace React\Nntp;
+namespace React\Nntp\Response;
 
 interface ResponseInterface
 {

@@ -3,7 +3,7 @@
 namespace React\Nntp\Command;
 
 use React\Nntp\Group;
-use React\Nntp\ResponseInterface;
+use React\Nntp\Response\ResponseInterface;
 
 class GroupCommand extends AbstractCommand
 {

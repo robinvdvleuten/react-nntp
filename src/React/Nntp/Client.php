@@ -6,6 +6,9 @@ use React\Dns\Resolver\Resolver;
 use React\EventLoop\LoopInterface;
 use React\Nntp\Command\AuthInfoCommand;
 use React\Nntp\Command\CommandInterface;
+use React\Nntp\Response\MultilineResponse;
+use React\Nntp\Response\Response;
+use React\Nntp\Response\ResponseInterface;
 use React\Promise\Deferred;
 use React\SocketClient\Connector;
 use React\SocketClient\ConnectorInterface;
@@ -123,7 +126,14 @@ class Client
         $deferred = new Deferred();
         $that = $this;
 
-        $this->stream->once('data', function ($data) use ($command, $deferred, $that) {
+        $this->stream->on('data', function ($data) use ($command, $deferred, $that) {
+            if (empty($data)) {
+                return;
+            }
+
+            // Do not listen to incoming data events anymore.
+            $that->stream->removeAllListeners('data');
+
             $response = Response::createFromString($data);
             $command->setResponse($response);
 
@@ -139,42 +149,27 @@ class Client
             }
 
             if ($response->isMultilineResponse() && $command->expectsMultilineResponse()) {
-                $messageParts = explode("\r\n", $response->getMessage());
-                // Remove the first 'follows' message from the parts.
-                array_shift($messageParts);
-                // Create a buffer string from the message parts.
-                $buffer = implode("\r\n", $messageParts);
+                // Convert the response to a multiline response.
+                $response = MultilineResponse::createFromResponse($response);
+                $command->setResponse($response);
 
-                // Did we already reveived the multiline response?
-                if (preg_match('/\.\r\n$/', $data, $matches)) {
-                    // Let the command's handler process the received multiline response.
-                    call_user_func_array($handlers[$command->getResponse()->getStatusCode()], array($command->getResponse(), $buffer));
-                    // Resolve the multiline result of the command.
-                    return $deferred->resolve($command);
+                if (!$response->isFinished()) {
+                    return $that->stream->on('data', function ($data) use ($command, $response, $handlers) {
+                        $lines = explode("\r\n", $data);
+                        $response->appendLines($lines);
+
+                        if ($response->isFinished()) {
+                            // Do not listen for data on the stream anymore.
+                            $that->stream->removeAllListeners('data');
+
+                            // Let the command's handler process the received multiline response.
+                            call_user_func_array($handlers[$response->getStatusCode()], array($response));
+
+                            // Resolve the multiline result of the command.
+                            return $deferred->resolve($command);
+                        }
+                    });
                 }
-
-                return $that->stream->on('data', function ($data) use (&$buffer, $handlers, $command, $deferred, $that) {
-                    // Append the received data to the buffer.
-                    $buffer .= $data;
-                    // flush();
-
-                    if (!preg_match('/\.\r\n$/', $data, $matches)) {
-                        return;
-                    }
-
-                    // Remove the end line of the multiline response.
-                    $buffer = preg_replace('/\r\n\.\r\n$/', '', $buffer);
-
-                    // Do not listen for data on the stream anymore.
-                    $that->stream->removeAllListeners('data');
-
-                    // Let the command's handler process the received multiline response.
-                    // @todo Do we need the check for existing handler again?
-                    call_user_func_array($handlers[$command->getResponse()->getStatusCode()], array($command->getResponse(), $buffer));
-
-                    // Resolve the multiline result of the command.
-                    return $deferred->resolve($command);
-                });
             }
 
             // Let the command's handler process the received response.
