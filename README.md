@@ -12,7 +12,7 @@ The recommended way to install reactphp-nntp is [through composer](http://getcom
 ```JSON
 {
     "require": {
-        "rvdv/reactphp-nntp": "1.0.*"
+        "rvdv/react-nntp": "1.0.*@dev"
     }
 }
 ```
