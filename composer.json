@@ -1,5 +1,5 @@
 {
-    "name": "rvdv/reactphp-nntp",
+    "name": "rvdv/react-nntp",
     "description": "Network News Transfer Protocol (NNTP) bindings for React.",
     "authors": [
         {
