@@ -31,7 +31,10 @@ class GroupCommand extends AbstractCommand
         return false;
     }
 
-    public function getGroup()
+    /**
+     * {@inheritDoc}
+     */
+    public function getResult()
     {
         return $this->group;
     }

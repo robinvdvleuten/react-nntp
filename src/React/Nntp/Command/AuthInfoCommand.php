@@ -27,6 +27,14 @@ class AuthInfoCommand extends AbstractCommand
     /**
      * {@inheritDoc}
      */
+    public function getResult()
+    {
+        return;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function expectsMultilineResponse()
     {
         return false;

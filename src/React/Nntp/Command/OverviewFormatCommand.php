@@ -8,7 +8,7 @@ use React\Nntp\Response\ResponseInterface;
 
 class OverviewFormatCommand extends AbstractCommand
 {
-    protected $format;
+    private $format;
 
     /**
      * {@inheritDoc}
@@ -26,7 +26,10 @@ class OverviewFormatCommand extends AbstractCommand
         return true;
     }
 
-    public function getFormat()
+    /**
+     * {@inheritDoc}
+     */
+    public function getResult()
     {
         return $this->format;
     }

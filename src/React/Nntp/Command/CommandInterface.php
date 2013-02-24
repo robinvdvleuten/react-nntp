@@ -17,4 +17,5 @@ interface CommandInterface
     public function execute();
     public function expectsMultilineResponse();
     public function getResponseHandlers();
+    public function getResult();
 }

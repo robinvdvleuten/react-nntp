@@ -16,8 +16,8 @@ class OverviewCommand extends AbstractCommand
     {
         $this->range = $range;
 
-        // Prepend 'Number' field
-        $this->format = array_merge(array('Number' => false), $format);
+        // Prepend 'number' field
+        $this->format = array_merge(array('number' => false), $format);
     }
 
     /**
@@ -36,7 +36,10 @@ class OverviewCommand extends AbstractCommand
         return true;
     }
 
-    public function getArticles()
+    /**
+     * {@inheritDoc}
+     */
+    public function getResult()
     {
         return $this->articles;
     }
@@ -50,9 +53,9 @@ class OverviewCommand extends AbstractCommand
             ResponseInterface::OVERVIEW_FOLLOWS => array(
                 $this, 'handleResponse'
             ),
-            /* ResponseInterface::NO_SUCH_GROUP => array(
+            ResponseInterface::NO_SUCH_GROUP => array(
                 $this, 'handleErrorResponse'
-            ) */
+            )
         );
     }
 

@@ -5,9 +5,11 @@ namespace React\Nntp\Response;
 interface MultilineResponseInterface
 {
     /**
-     * Append lines to the already received lines.
+     * Append data to the already received data.
+     *
+     * @param string $data The received data to append.
      */
-    public function appendLines(array $lines);
+    public function appendData($data);
 
     /**
      * Get the lines of the multiline response.

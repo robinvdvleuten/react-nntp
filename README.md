@@ -35,30 +35,27 @@ $format = null;
 
 $client
     ->connect('news.php.net', 119)
-    ->then(function ($response) use ($client) {
-        $command = new React\Nntp\Command\OverviewFormatCommand();
-        return $client->sendCommand($command);
+    ->then(function (React\Nntp\Response\ResponseInterface $response) use ($client) {
+        return $client->overviewFormat();
     })
-    ->then(function (React\Nntp\Command\OverviewFormatCommand $command) use (&$format, $client) {
-        $format = $command->getFormat();
+    ->then(function (React\Nntp\Command\CommandInterface $command) use (&$format, $client) {
+        $format = $command->getResult();
 
-        $command = new React\Nntp\Command\GroupCommand('php.doc');
-        return $client->sendCommand($command);
+        return $client->group('php.doc');
     })
-    ->then(function (React\Nntp\Command\GroupCommand $command) use (&$group, &$format, $client) {
-        $group = $command->getGroup();
+    ->then(function (React\Nntp\Command\CommandInterface $command) use (&$group, &$format, $client) {
+        $group = $command->getResult();
 
-        $command = new React\Nntp\Command\OverviewCommand($group->getFirst() . '-' . ($group->getFirst() + 99), $format);
-        return $client->sendCommand($command);
+        return $client->overview($group->getFirst() . '-' . ($group->getFirst() + 99, $format);
     })
-    ->then(function (React\Nntp\Command\OverviewCommand $command) use ($client) {
-        $articles = $command->getArticles();
+    ->then(function (React\Nntp\Command\CommandInterface $command) use ($client) {
+        $articles = $command->getResult();
         // Process the articles further.
 
-        $client->loop->stop();
+        $client->stop();
     });
 
-$client->loop->run();
+$client->run();
 ```
 
 ## Tests

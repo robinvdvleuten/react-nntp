@@ -14,7 +14,7 @@ abstract class AbstractCommand implements CommandInterface
     protected $response;
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function getResponse()
     {
@@ -22,25 +22,10 @@ abstract class AbstractCommand implements CommandInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function setResponse(ResponseInterface $response)
     {
         $this->response = $response;
     }
-
-    /**
-     * {@inheritdoc}
-     */
-    abstract public function execute();
-
-    /**
-     * {@inheritdoc}
-     */
-    abstract public function expectsMultilineResponse();
-
-    /**
-     * {@inheritdoc}
-     */
-    abstract public function getResponseHandlers();
 }
