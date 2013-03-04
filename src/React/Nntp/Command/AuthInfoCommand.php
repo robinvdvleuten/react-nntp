@@ -63,9 +63,4 @@ class AuthInfoCommand extends AbstractCommand
         // We do nothing with the response here.
         return;
     }
-
-    public function handleErrorResponse(ResponseInterface $response)
-    {
-        var_dump($response);
-    }
 }

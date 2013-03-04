@@ -79,7 +79,8 @@ class Client
                 }
 
                 return $command;
-            });
+            })
+        ;
     }
 
     public function run()

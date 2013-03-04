@@ -59,9 +59,4 @@ class GroupCommand extends AbstractCommand
         $parts = explode(' ', $response->getMessage());
         $this->group = new Group($parts[3], $parts[0], $parts[1], $parts[2]);
     }
-
-    public function handleErrorResponse(ResponseInterface $response)
-    {
-        var_dump($response);
-    }
 }

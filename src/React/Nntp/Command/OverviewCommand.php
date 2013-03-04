@@ -76,9 +76,4 @@ class OverviewCommand extends AbstractCommand
             $this->articles[] = $article;
         }
     }
-
-    public function handleErrorResponse(ResponseInterface $response)
-    {
-        var_dump($response);
-    }
 }

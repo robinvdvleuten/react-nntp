@@ -62,9 +62,4 @@ class OverviewFormatCommand extends AbstractCommand
             }
         }
     }
-
-    public function handleErrorResponse(ResponseInterface $response)
-    {
-        var_dump($response);
-    }
 }

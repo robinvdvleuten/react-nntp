@@ -2,6 +2,7 @@
 
 namespace React\Nntp\Command;
 
+use React\Nntp\Exception\BadResponseException;
 use React\Nntp\Response\ResponseInterface;
 
 /**
@@ -27,5 +28,10 @@ abstract class AbstractCommand implements CommandInterface
     public function setResponse(ResponseInterface $response)
     {
         $this->response = $response;
+    }
+
+    public function handleErrorResponse(ResponseInterface $response)
+    {
+        throw BadResponseException::factory($response);
     }
 }
