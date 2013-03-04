@@ -13,6 +13,7 @@ use React\SocketClient\Connector;
 use React\SocketClient\ConnectorInterface;
 use React\SocketClient\SecureConnector;
 use React\Stream\Stream;
+use RuntimeException;
 
 class Connection
 {
