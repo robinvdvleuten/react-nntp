@@ -2,6 +2,7 @@
 
 namespace React\Nntp;
 
+use Exception;
 use React\Dns\Resolver\Resolver;
 use React\EventLoop\LoopInterface;
 use React\Nntp\Command\AuthInfoCommand;
@@ -61,25 +62,35 @@ class Client
         $command = new AuthInfoCommand('user', $username);
         return $connection
             ->executeCommand($command)
-            ->then(function (AuthInfoCommand $command) use ($password, $deferred, $connection) {
-                if (ResponseInterface::AUTHENTICATION_CONTINUE === $command->getResponse()->getStatusCode()) {
-                    $command = new AuthInfoCommand('pass', $password);
-                    return $connection->executeCommand($command);
-                }
+            ->then(
+                function (AuthInfoCommand $command) use ($password, $deferred, $connection) {
+                    if (ResponseInterface::AUTHENTICATION_CONTINUE === $command->getResponse()->getStatusCode()) {
+                        $command = new AuthInfoCommand('pass', $password);
+                        return $connection->executeCommand($command);
+                    }
 
-                return $deferred->resolve($command);
-            })
-            ->then(function (AuthInfoCommand $command) {
-                if (ResponseInterface::AUTHENTICATION_ACCEPTED !== $command->getResponse()->getStatusCode()) {
-                    throw new RuntimeException(sprintf(
-                        "Could not authenticate with the provided username/password: [%d] %s",
-                        $response->getStatusCode(),
-                        $response->getMessage()
-                    ));
+                    return $deferred->resolve($command);
+                },
+                function (Exception $e) use ($deferred) {
+                    return $deferred->reject($e);
                 }
+            )
+            ->then(
+                function (AuthInfoCommand $command) use ($deferred) {
+                    if (ResponseInterface::AUTHENTICATION_ACCEPTED !== $command->getResponse()->getStatusCode()) {
+                        return $deferred->reject(new RuntimeException(sprintf(
+                            "Could not authenticate with the provided username/password: [%d] %s",
+                            $response->getStatusCode(),
+                            $response->getMessage()
+                        )));
+                    }
 
-                return $command;
-            })
+                    return $command;
+                },
+                function (Exception $e) use ($deferred) {
+                    return $deferred->reject($e);
+                }
+            )
         ;
     }
 

@@ -76,11 +76,11 @@ class Connection
 
             // Check if we received a response expected by the command.
             if (!isset($handlers[$response->getStatusCode()])) {
-                throw new RuntimeException(sprintf(
+                return $deferred->reject(new RuntimeException(sprintf(
                     "Unexpected response received: [%d] %s",
                     $response->getStatusCode(),
                     $response->getMessage()
-                ));
+                )));
             }
 
             if ($response->isMultilineResponse() && $command->expectsMultilineResponse()) {
