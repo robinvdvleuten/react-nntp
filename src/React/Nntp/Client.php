@@ -21,7 +21,7 @@ use RuntimeException;
 
 class Client
 {
-    private $connector;
+    private $connection;
     private $loop;
     private $secureConnector;
     private $stream;
