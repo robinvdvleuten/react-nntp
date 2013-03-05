@@ -12,7 +12,7 @@ class OverviewCommand extends AbstractCommand
     protected $format;
     protected $range;
 
-    public function __construct($range, $format)
+    public function __construct($range, array $format)
     {
         $this->range = $range;
 
