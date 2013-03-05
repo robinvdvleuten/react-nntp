@@ -1,24 +1,25 @@
 <?php
 
-namespace React\Tests\Nntp;
+namespace React\Tests\Nntp\Connection;
 
 use React\EventLoop\StreamSelectLoop;
-use React\Nntp\Client;
+use React\Nntp\Connection\Connection;
 use React\Socket\ConnectionInterface;
 use React\Socket\Server;
+use React\Tests\Nntp\TestCase;
 
-class ClientTest extends TestCase
+class ConnectionTest extends TestCase
 {
     /**
      * @test
      */
-    public function factoryShouldReturnAClient()
+    public function factoryShouldReturnAConnection()
     {
         $loop = $this->createLoopMock();
         $dns = $this->createResolverMock();
 
-        $client = Client::factory($loop, $dns);
-        $this->assertInstanceOf('React\\Nntp\\Client', $client);
+        $connection = Connection::factory($loop, $dns);
+        $this->assertInstanceOf('React\\Nntp\\Connection\\Connection', $connection);
     }
 
     /**
@@ -38,15 +39,15 @@ class ClientTest extends TestCase
         });
         $server->listen(9999);
 
-        $client = Client::factory($loop, $dns);
-        $client->connect('127.0.0.1', 9999)
+        $connection = Connection::factory($loop, $dns);
+        $connection->connect('127.0.0.1', 9999)
             ->then(function ($response) use (&$receivedResponse, $loop) {
                 $receivedResponse = $response;
                 $loop->stop();
             })
         ;
 
-        $client->run();
+        $loop->run();
 
         $this->assertInstanceOf('React\\Nntp\\Response\\ResponseInterface', $receivedResponse);
         $this->assertEquals(200, $receivedResponse->getStatusCode());
@@ -61,29 +62,12 @@ class ClientTest extends TestCase
         $loop = new StreamSelectLoop();
         $dns = $this->createResolverMock();
 
-        $client = Client::factory($loop, $dns);
-        $client->connect('127.0.0.1', 9999)
+        $connection = Connection::factory($loop, $dns);
+        $connection->connect('127.0.0.1', 9999)
             ->then($this->expectCallableNever(), $this->expectCallableOnce())
         ;
 
-        $client->run();
-    }
-
-    /**
-     * @test
-     */
-    public function runAndStopShouldCallLoopInstanceMethods()
-    {
-        $loop = $this->createLoopMock();
-        $loop->expects($this->once())->method('run');
-        $loop->expects($this->once())->method('stop');
-
-        $dns = $this->createResolverMock();
-
-        $client = Client::factory($loop, $dns);
-
-        $client->run();
-        $client->stop();
+        $loop->run();
     }
 
     private function createLoopMock()

@@ -2,7 +2,6 @@
 
 namespace React\Nntp\Connection;
 
-use Exception;
 use React\Dns\Resolver\Resolver;
 use React\EventLoop\LoopInterface;
 use React\Nntp\Command\CommandInterface;
@@ -50,10 +49,7 @@ class Connection
         return $this
             ->getConnectorForTransport($transport)
             ->createTcp($address, $port)
-            ->then(
-                array($this, 'onConnect'),
-                array($this, 'onError')
-            );
+            ->then(array($this, 'onConnect'));
     }
 
     public function executeCommand(CommandInterface $command)
@@ -133,12 +129,6 @@ class Connection
         });
 
         return $deferred->promise();
-    }
-
-    public function onError(Exception $e)
-    {
-        var_dump($e);
-        return $e;
     }
 
     protected function getConnectorForTransport($transport = 'tcp')
