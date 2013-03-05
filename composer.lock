@@ -48,17 +48,17 @@
         },
         {
             "name": "guzzle/parser",
-            "version": "v3.2.0",
+            "version": "v3.3.0",
             "target-dir": "Guzzle/Parser",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/parser.git",
-                "reference": "v3.1.0"
+                "reference": "v3.3.0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/parser/zipball/v3.1.0",
-                "reference": "v3.1.0",
+                "url": "https://api.github.com/repos/guzzle/parser/zipball/v3.3.0",
+                "reference": "v3.3.0",
                 "shasum": ""
             },
             "require": {
@@ -75,7 +75,7 @@
                     "Guzzle\\Parser": ""
                 }
             },
-            "notification-url": "http://packagist.org/downloads/",
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -190,7 +190,9 @@
             "time": "2013-02-24 20:55:02"
         }
     ],
-    "packages-dev": null,
+    "packages-dev": [
+
+    ],
     "aliases": [
 
     ],
@@ -198,5 +200,11 @@
     "stability-flags": {
         "react/react": 20,
         "react/promise": 20
-    }
+    },
+    "platform": {
+        "php": ">=5.3.3"
+    },
+    "platform-dev": [
+
+    ]
 }
