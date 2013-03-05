@@ -4,10 +4,9 @@ namespace React\Nntp\Response;
 
 class MultilineResponse extends Response implements MultilineResponseInterface
 {
-    private $finished = false;
-
     private $data = "";
-    private $lines;
+    private $finished = false;
+    private $lines = array();
 
     /**
      * Constructor
@@ -44,7 +43,7 @@ class MultilineResponse extends Response implements MultilineResponseInterface
         $this->data .= $data;
 
         // Check if we have finished receiving lines.
-        if ($this->finished = preg_match("/\r\n.(\r\n)?$/", $this->data)) {
+        if ($this->finished = (bool) preg_match("/\r\n.(\r\n)?$/", $this->data)) {
             $this->lines = explode("\r\n", trim($this->data));
 
             // We do not need this dot in the multiline response.

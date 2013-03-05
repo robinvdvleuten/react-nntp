@@ -8,14 +8,8 @@ use React\EventLoop\LoopInterface;
 use React\Nntp\Command\AuthInfoCommand;
 use React\Nntp\Command\CommandInterface;
 use React\Nntp\Connection\Connection;
-use React\Nntp\Response\MultilineResponse;
-use React\Nntp\Response\Response;
 use React\Nntp\Response\ResponseInterface;
 use React\Promise\Deferred;
-use React\SocketClient\Connector;
-use React\SocketClient\ConnectorInterface;
-use React\SocketClient\SecureConnector;
-use React\Stream\Stream;
 use ReflectionClass;
 use RuntimeException;
 
