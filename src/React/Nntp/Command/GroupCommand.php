@@ -2,17 +2,24 @@
 
 namespace React\Nntp\Command;
 
+use React\EventLoop\LoopInterface;
 use React\Nntp\Group;
 use React\Nntp\Response\ResponseInterface;
+use React\Stream\ReadableStreamInterface;
 
-class GroupCommand extends AbstractCommand
+class GroupCommand extends Command implements CommandInterface
 {
     protected $group;
     protected $name;
 
-    public function __construct($name)
+    /**
+     * Constructor.
+     */
+    public function __construct(ReadableStreamInterface $stream, LoopInterface $loop, $name)
     {
         $this->name = $name;
+
+        parent::__construct($stream, $loop);
     }
 
     /**
@@ -20,7 +27,7 @@ class GroupCommand extends AbstractCommand
      */
     public function execute()
     {
-        return 'GROUP ' . $this->name;
+        return $this->end("GROUP " . $this->name . "\r\n");
     }
 
     /**
@@ -46,15 +53,15 @@ class GroupCommand extends AbstractCommand
     {
         return array(
             ResponseInterface::GROUP_SELECTED => array(
-                $this, 'handleResponse'
+                $this, 'handleGroupSelectedResponse'
             ),
             ResponseInterface::NO_SUCH_GROUP => array(
                 $this, 'handleErrorResponse'
-            )
+            ),
         );
     }
 
-    public function handleResponse(ResponseInterface $response)
+    public function handleGroupSelectedResponse(ResponseInterface $response)
     {
         $parts = explode(' ', $response->getMessage());
         $this->group = new Group($parts[3], $parts[0], $parts[1], $parts[2]);

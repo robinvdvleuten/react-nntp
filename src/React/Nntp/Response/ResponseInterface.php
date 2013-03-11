@@ -2,6 +2,11 @@
 
 namespace React\Nntp\Response;
 
+/**
+ * ResponseInterface
+ *
+ * @author Robin van der Vleuten <robinvdvleuten@gmail.com>
+ */
 interface ResponseInterface
 {
     // Connection constants

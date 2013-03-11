@@ -33,8 +33,8 @@ class ClientTest extends TestCase
 
         $server = new Server($loop);
         $server->on('connection', $this->expectCallableOnce());
-        $server->on('connection', function (ConnectionInterface $connection) use ($server, $loop) {
-            $connection->write("200 Hello from the NNTP server");
+        $server->on('connection', function ($connection) use ($server, $loop) {
+            $connection->write("200 Hello from the NNTP server\r\n");
         });
         $server->listen(9999);
 

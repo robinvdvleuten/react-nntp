@@ -2,22 +2,27 @@
 
 namespace React\Nntp\Command;
 
+use React\EventLoop\LoopInterface;
 use React\Nntp\Group;
 use React\Nntp\Response\MultilineResponseInterface;
 use React\Nntp\Response\ResponseInterface;
+use React\Stream\ReadableStreamInterface;
 
-class OverviewCommand extends AbstractCommand
+class OverviewCommand extends Command implements CommandInterface
 {
     protected $articles;
     protected $format;
     protected $range;
 
-    public function __construct($range, array $format)
+    public function __construct(ReadableStreamInterface $stream, LoopInterface $loop, $range, array $format)
     {
+        var_dump($range);
         $this->range = $range;
 
         // Prepend 'number' field
         $this->format = array_merge(array('number' => false), $format);
+
+        parent::__construct($stream, $loop);
     }
 
     /**
@@ -25,7 +30,7 @@ class OverviewCommand extends AbstractCommand
      */
     public function execute()
     {
-        return 'XOVER ' . $this->range;
+        return $this->end("XOVER " . $this->range . "\r\n");
     }
 
     /**
@@ -51,15 +56,23 @@ class OverviewCommand extends AbstractCommand
     {
         return array(
             ResponseInterface::OVERVIEW_FOLLOWS => array(
-                $this, 'handleResponse'
+                $this, 'handleOverviewFollowsResponse'
             ),
             ResponseInterface::NO_SUCH_GROUP => array(
                 $this, 'handleErrorResponse'
-            )
+            ),
+            ResponseInterface::NO_ARTICLE_SELECTED => array(
+                $this, 'handleErrorResponse'
+            ),
         );
     }
 
-    public function handleResponse(MultilineResponseInterface $response)
+    /**
+     * Handler for a OVERVIEW_FOLLOWS response.
+     *
+     * @param \React\Nntp\Response\MultilineResponseInterface $response A MultilineResponseInterface instance.
+     */
+    public function handleOverviewFollowsResponse(MultilineResponseInterface $response)
     {
         $this->articles = array();
 

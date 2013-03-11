@@ -4,6 +4,7 @@ namespace React\Nntp\Connection;
 
 use React\Dns\Resolver\Resolver;
 use React\EventLoop\LoopInterface;
+use React\Nntp\Command\Command;
 use React\Nntp\Command\CommandInterface;
 use React\Nntp\Response\MultilineResponse;
 use React\Nntp\Response\Response;
@@ -17,14 +18,16 @@ use RuntimeException;
 class Connection
 {
     private $connector;
+    private $loop;
     private $secureConnector;
     private $stream;
 
     /**
      * Constructor.
      */
-    public function __construct(ConnectorInterface $connector, ConnectorInterface $secureConnector)
+    public function __construct(LoopInterface $loop, ConnectorInterface $connector, ConnectorInterface $secureConnector)
     {
+        $this->loop = $loop;
         $this->connector = $connector;
         $this->secureConnector = $secureConnector;
     }
@@ -34,7 +37,7 @@ class Connection
         $connector = new Connector($loop, $resolver);
         $secureConnector = new SecureConnector($connector, $loop);
 
-        return new static($connector, $secureConnector);
+        return new static($loop, $connector, $secureConnector);
     }
 
     /**
@@ -49,65 +52,44 @@ class Connection
         return $this
             ->getConnectorForTransport($transport)
             ->createTcp($address, $port)
-            ->then(array($this, 'onConnect'));
+            ->then(array($this, 'handleConnect'));
     }
 
-    public function executeCommand(CommandInterface $command)
+    public function close()
     {
+        $this->stream->close();
+    }
+
+    public function executeCommand($command, $arguments)
+    {
+        $class = sprintf('React\\Nntp\\Command\\%sCommand', str_replace(" ", "", ucwords(strtr($command, "_-", "  "))));
+        if (!class_exists($class) || !in_array('React\\Nntp\\Command\\CommandInterface', class_implements($class))) {
+            throw new RuntimeException(sprintf(
+                "Given class %s is not a valid command.",
+                $class
+            ));
+        }
+
+        $arguments = array_merge(array(
+            $this->stream,
+            $this->loop,
+        ), $arguments);
+
+        $reflect  = new \ReflectionClass($class);
+        $command = $reflect->newInstanceArgs($arguments);
+
         $deferred = new Deferred();
-        $stream = $this->stream;
 
-        $stream->on('data', function ($data) use ($command, $deferred, $stream) {
-            if (empty($data)) {
-                return;
+        $command->on('end', function (\Exception $error = null) use ($command, $deferred) {
+            if ($error) {
+                return $deferred->reject($error);
             }
 
-            // Do not listen to incoming data events anymore.
-            $stream->removeAllListeners('data');
-
-            $response = Response::createFromString($data);
-            $command->setResponse($response);
-
-            $handlers = $command->getResponseHandlers();
-
-            // Check if we received a response expected by the command.
-            if (!isset($handlers[$response->getStatusCode()])) {
-                return $deferred->reject(new RuntimeException(sprintf(
-                    "Unexpected response received: [%d] %s",
-                    $response->getStatusCode(),
-                    $response->getMessage()
-                )));
-            }
-
-            if ($response->isMultilineResponse() && $command->expectsMultilineResponse()) {
-                // Convert the response to a multiline response.
-                $response = MultilineResponse::createFromResponse($response);
-                $command->setResponse($response);
-
-                if (!$response->isFinished()) {
-                    return $stream->on('data', function ($data) use ($command, $response, $stream, $handlers, $deferred) {
-                        $response->appendData($data);
-
-                        if ($response->isFinished()) {
-                            // Do not listen for data on the stream anymore.
-                            $stream->removeAllListeners('data');
-
-                            // Let the command's handler process the received multiline response.
-                            call_user_func_array($handlers[$response->getStatusCode()], array($response));
-
-                            // Resolve the multiline result of the command.
-                            return $deferred->resolve($command);
-                        }
-                    });
-                }
-            }
-
-            // Let the command's handler process the received response.
-            call_user_func_array($handlers[$response->getStatusCode()], array($response));
-            return $deferred->resolve($command);
+            $deferred->resolve($command);
         });
 
-        $stream->write($command->execute() . "\r\n");
+        $command->execute();
+
         return $deferred->promise();
     }
 
@@ -116,16 +98,16 @@ class Connection
      *
      * @param \React\Stream\Stream $stream
      */
-    public function onConnect(Stream $stream)
+    public function handleConnect(Stream $stream)
     {
         $this->stream = $stream;
 
+        $response = new Response($this->stream, $this->loop);
         $deferred = new Deferred();
-        $stream->once('data', function ($data) use ($deferred) {
-            $response = Response::createFromString($data);
-            // @todo Check if it is a 200 response.
 
-            return $deferred->resolve($response);
+        $response->on('end', function () use ($response, $deferred) {
+            // @todo Check if it is a 200 response.
+            $deferred->resolve($response);
         });
 
         return $deferred->promise();

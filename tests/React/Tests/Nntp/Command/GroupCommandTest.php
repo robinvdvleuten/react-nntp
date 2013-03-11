@@ -9,20 +9,34 @@ class GroupCommandTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function executeShouldReturnCorrectString()
+    public function commandExpectsMultilineResponse()
     {
-        $command = new GroupCommand('test');
+        $command = new GroupCommand($this->createStreamMock(), $this->createLoopMock(), 'test');
 
-        $this->assertRegExp('/^GROUP test$/', $command->execute());
+        $this->assertFalse($command->expectsMultilineResponse());
     }
 
     /**
      * @test
      */
-    public function commandExpectsMultilineResponse()
+    public function commandShouldNotReturnInitialResult()
     {
-        $command = new GroupCommand('test');
+        $command = new GroupCommand($this->createStreamMock(), $this->createLoopMock(), 'test');
 
-        $this->assertFalse($command->expectsMultilineResponse());
+        $this->assertNull($command->getResult());
+    }
+
+    private function createLoopMock()
+    {
+        return $this->getMockBuilder('React\EventLoop\StreamSelectLoop')
+                    ->disableOriginalConstructor()
+                    ->getMock();
+    }
+
+    private function createStreamMock()
+    {
+        return $this->getMockBuilder('React\Stream\Stream')
+                    ->disableOriginalConstructor()
+                    ->getMock();
     }
 }

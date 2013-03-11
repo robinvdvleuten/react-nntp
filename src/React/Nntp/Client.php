@@ -2,17 +2,18 @@
 
 namespace React\Nntp;
 
-use Exception;
 use React\Dns\Resolver\Resolver;
 use React\EventLoop\LoopInterface;
-use React\Nntp\Command\AuthInfoCommand;
 use React\Nntp\Command\CommandInterface;
 use React\Nntp\Connection\Connection;
 use React\Nntp\Response\ResponseInterface;
-use React\Promise\Deferred;
-use ReflectionClass;
-use RuntimeException;
+use React\Promise\When;
 
+/**
+ * Client
+ *
+ * @author Robin van der Vleuten <robinvdvleuten@gmail.com>
+ */
 class Client
 {
     private $connection;
@@ -22,6 +23,9 @@ class Client
 
     /**
      * Constructor.
+     *
+     * @param \React\EventLoop\LoopInterface    $loop       A LoopInterface instance.
+     * @param \React\Nntp\Connection\Connection $connection A Connection instance.
      */
     public function __construct(LoopInterface $loop, Connection $connection)
     {
@@ -50,39 +54,36 @@ class Client
 
     public function authenticate($username, $password)
     {
-        $deferred = new Deferred();
-        $connection = $this->connection;
+        $that = $this;
 
-        $command = new AuthInfoCommand('user', $username);
-        return $connection
-            ->executeCommand($command)
+        return $this
+            ->authInfo('user', $username)
             ->then(
-                function (AuthInfoCommand $command) use ($password, $deferred, $connection) {
-                    if (ResponseInterface::AUTHENTICATION_CONTINUE === $command->getResponse()->getStatusCode()) {
-                        $command = new AuthInfoCommand('pass', $password);
-                        return $connection->executeCommand($command);
+                function (CommandInterface $command) use ($password, $that) {
+                    if (ResponseInterface::AUTHENTICATION_CONTINUE == $command->getResponse()->getStatusCode()) {
+                        return $that->authInfo('pass', $password);
                     }
 
-                    return $deferred->resolve($command);
+                    return When::resolve($command);
                 },
-                function (Exception $e) use ($deferred) {
-                    return $deferred->reject($e);
+                function (Exception $e) {
+                    return When::reject($e);
                 }
             )
             ->then(
-                function (AuthInfoCommand $command) use ($deferred) {
-                    if (ResponseInterface::AUTHENTICATION_ACCEPTED !== $command->getResponse()->getStatusCode()) {
-                        return $deferred->reject(new RuntimeException(sprintf(
+                function (CommandInterface $command) {
+                    if (ResponseInterface::AUTHENTICATION_ACCEPTED != $command->getResponse()->getStatusCode()) {
+                        return When::reject(new \RuntimeException(sprintf(
                             "Could not authenticate with the provided username/password: [%d] %s",
-                            $response->getStatusCode(),
-                            $response->getMessage()
+                            $command->getResponse()->getStatusCode(),
+                            $command->getResponse()->getMessage()
                         )));
                     }
 
-                    return $command;
+                    return When::resolve($command);
                 },
-                function (Exception $e) use ($deferred) {
-                    return $deferred->reject($e);
+                function (\Exception $e) {
+                    return When::reject($e);
                 }
             )
         ;
@@ -95,22 +96,12 @@ class Client
 
     public function stop()
     {
+        $this->connection->close();
         $this->loop->stop();
     }
 
-    public function __call($method, $arguments)
+    public function __call($command, $arguments)
     {
-        $class = sprintf('React\\Nntp\\Command\\%sCommand', str_replace(" ", "", ucwords(strtr($method, "_-", "  "))));
-        if (!class_exists($class) || !in_array('React\\Nntp\\Command\\CommandInterface', class_implements($class))) {
-            throw new RuntimeException(sprintf(
-                "Given class %s is not a valid command.",
-                $class
-            ));
-        }
-
-        $reflect  = new ReflectionClass($class);
-        $command = $reflect->newInstanceArgs($arguments);
-
-        return $this->connection->executeCommand($command);
+        return $this->connection->executeCommand($command, $arguments);
     }
 }

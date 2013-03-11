@@ -6,7 +6,7 @@ use React\Nntp\Group;
 use React\Nntp\Response\MultilineResponseInterface;
 use React\Nntp\Response\ResponseInterface;
 
-class OverviewFormatCommand extends AbstractCommand
+class OverviewFormatCommand extends Command implements CommandInterface
 {
     private $format;
 
@@ -15,7 +15,7 @@ class OverviewFormatCommand extends AbstractCommand
      */
     public function execute()
     {
-        return 'LIST OVERVIEW.FMT';
+        return $this->end("LIST OVERVIEW.FMT\r\n");
     }
 
     /**
@@ -41,7 +41,7 @@ class OverviewFormatCommand extends AbstractCommand
     {
         return array(
             ResponseInterface::GROUPS_FOLLOW => array(
-                $this, 'handleResponse'
+                $this, 'handleGroupsFollowResponse'
             ),
             ResponseInterface::NO_SUCH_GROUP => array(
                 $this, 'handleErrorResponse'
@@ -49,7 +49,7 @@ class OverviewFormatCommand extends AbstractCommand
         );
     }
 
-    public function handleResponse(MultilineResponseInterface $response)
+    public function handleGroupsFollowResponse(MultilineResponseInterface $response)
     {
         $this->format = array();
         foreach ($response->getLines() as $line) {

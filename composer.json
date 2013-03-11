@@ -13,7 +13,8 @@
     "require": {
         "php": ">=5.3.3",
         "react/react": "0.3.*@dev",
-        "react/promise": "1.0.*@dev"
+        "react/promise": "1.0.*@dev",
+        "react/curry": "~1.0"
     },
     "autoload": {
         "psr-0": {

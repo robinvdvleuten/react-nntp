@@ -2,53 +2,59 @@
 
 namespace React\Nntp\Response;
 
-class MultilineResponse extends Response implements MultilineResponseInterface
+use Evenement\EventEmitter;
+use React\EventLoop\LoopInterface;
+use React\Stream\ReadableStreamInterface;
+use React\Stream\Util;
+use React\Stream\WritableStreamInterface;
+
+/**
+ * MultilineResponse
+ *
+ * @author Robin van der Vleuten <robinvdvleuten@gmail.com>
+ */
+class MultilineResponse extends EventEmitter implements MultilineResponseInterface, ReadableStreamInterface
 {
-    private $data = "";
-    private $finished = false;
-    private $lines = array();
+    private $lines;
+    private $loop;
+    private $readable = true;
+    private $response;
+    private $stream;
 
     /**
      * Constructor
      *
-     * @param integer $statusCode
-     * @param string  $message
+     * @param \React\Nntp\Response\ResponseInterface $response A Response instance.
+     * @param \React\Stream\WritableStreamInterface  $stream   A WritableStreamInterface instance.
+     * @param \React\EventLoop\LoopInterface         $loop     A LoopInterface instance.
      */
-    public function __construct($statusCode, $message, $data)
+    public function __construct(ResponseInterface $response, WritableStreamInterface $stream, LoopInterface $loop)
     {
-        parent::__construct($statusCode, $message);
+        $this->response = $response;
+        $this->stream = $stream;
+        $this->loop = $loop;
 
-        $this->appendData($data);
-    }
+        $this->lines = array();
 
-    public static function createFromResponse(ResponseInterface $response)
-    {
-        // Explode the received message to lines.
-        $lines = explode("\r\n", $response->getMessage());
-
-        // Shift the first line, this is the main message.
-        $message = array_shift($lines);
-
-        // Sometimes we've received parts of lines, so put the lines back as string.
-        $data = implode("\r\n", $lines);
-
-        return new static($response->getStatusCode(), $message, $data);
+        $this->stream->on('data', array($this, 'handleData'));
+        $this->stream->on('end', array($this, 'handleEnd'));
+        $this->stream->on('error', array($this, 'handleError'));
     }
 
     /**
      * {@inheritDoc}
      */
-    public function appendData($data)
+    public function getStatusCode()
     {
-        $this->data .= $data;
+        return $this->response->getStatusCode();
+    }
 
-        // Check if we have finished receiving lines.
-        if ($this->finished = (bool) preg_match("/\r\n.(\r\n)?$/", $this->data)) {
-            $this->lines = explode("\r\n", trim($this->data));
-
-            // We do not need this dot in the multiline response.
-            array_pop($this->lines);
-        }
+    /**
+     * {@inheritDoc}
+     */
+    public function getMessage()
+    {
+        return $this->response->getMessage();
     }
 
     /**
@@ -62,16 +68,78 @@ class MultilineResponse extends Response implements MultilineResponseInterface
     /**
      * {@inheritDoc}
      */
-    public function isFinished()
-    {
-        return $this->finished;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function isMultilineResponse()
     {
         return true;
+    }
+
+    public function isReadable()
+    {
+        return $this->readable;
+    }
+
+    public function pause()
+    {
+
+    }
+
+    public function resume()
+    {
+
+    }
+
+    public function pipe(WritableStreamInterface $dest, array $options = array())
+    {
+        Util::pipe($this, $dest, $options);
+
+        return $dest;
+    }
+
+    public function close(\Exception $error = null)
+    {
+        if (!$this->readable) {
+            return;
+        }
+
+        $this->readable = false;
+
+        $this->emit('end', array($error, $this));
+
+        $this->removeAllListeners();
+    }
+
+    public function handleData($data)
+    {
+        $this->buffer .= $data;
+
+        if (false !== (bool) preg_match("/\r\n.(\r\n)?$/", $this->buffer)) {
+            $this->lines = explode("\r\n", $this->buffer);
+
+            if (end($this->lines) === "") {
+                array_pop($this->lines);
+            }
+
+            if (end($this->lines) === ".") {
+                array_pop($this->lines);
+            }
+
+            $this->buffer = null;
+
+            $this->stream->removeListener('data', array($this, 'handleData'));
+            $this->stream->removeListener('end', array($this, 'handleEnd'));
+            $this->stream->removeListener('error', array($this, 'handleError'));
+
+            $this->close();
+        }
+    }
+
+    public function handleEnd()
+    {
+        var_dump(__FUNCTION__);
+    }
+
+    public function handleError()
+    {
+        var_dump(__FUNCTION__);
     }
 }

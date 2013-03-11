@@ -2,12 +2,28 @@
 
 namespace React\Nntp\Response;
 
-class Response implements ResponseInterface
+use Evenement\EventEmitter;
+use React\EventLoop\LoopInterface;
+use React\Stream\ReadableStreamInterface;
+use React\Stream\Util;
+use React\Stream\WritableStreamInterface;
+
+/**
+ * Response
+ *
+ * @author Robin van der Vleuten <robinvdvleuten@gmail.com>
+ */
+class Response extends EventEmitter implements ResponseInterface, ReadableStreamInterface
 {
     /**
-     * @var integer
+     * @var string
      */
-    private $statusCode;
+    private $buffer;
+
+    /**
+     * @var \React\EventLoop\LoopInterface
+     */
+    private $loop;
 
     /**
      * @var string
@@ -15,43 +31,34 @@ class Response implements ResponseInterface
     private $message;
 
     /**
-     * Constructor
-     *
-     * @param integer $statusCode
-     * @param string  $message
+     * @var boolean
      */
-    public function __construct($statusCode, $message)
-    {
-        $this->statusCode = (integer) $statusCode;
-        $this->message    = (string) $message;
-    }
+    private $readable = true;
 
     /**
-     * Create a Response object from a string
-     *
-     * @return Nntp\Protocol\Response\Response
-     *
-     * @throws RuntimeException
-     * @throws InvalidArgumentException
+     * @var integer
      */
-    public static function createFromString($response)
+    private $statusCode;
+
+    /**
+     * @var \React\Stream\WritableStreamInterface
+     */
+    private $stream;
+
+    /**
+     * Constructor
+     *
+     * @param \React\Stream\WritableStreamInterface $stream A WritableStreamInterface instance.
+     * @param \React\EventLoop\LoopInterface        $loop   A LoopInterface instance.
+     */
+    public function __construct(WritableStreamInterface $stream, LoopInterface $loop)
     {
-        if (!preg_match('/^(\d{3}) (.+)$/s', trim($response), $matches)) {
-            throw new \InvalidArgumentException(
-                sprintf('Invalid response: "%s"', trim($response))
-            );
-        }
+        $this->loop = $loop;
+        $this->stream = $stream;
 
-        if ($matches[1] < 100 || $matches[1] >= 600) {
-            throw new \RuntimeException(
-                sprintf('Invalid status code: %d', $matches[1])
-            );
-        }
-
-        return new static(
-            $matches[1],
-            $matches[2]
-        );
+        $this->stream->on('data', array($this, 'handleData'));
+        $this->stream->on('end', array($this, 'handleEnd'));
+        $this->stream->on('error', array($this, 'handleError'));
     }
 
     /**
@@ -59,7 +66,7 @@ class Response implements ResponseInterface
      */
     public function getStatusCode()
     {
-        return $this->statusCode;
+        return (int) $this->statusCode;
     }
 
     /**
@@ -92,5 +99,80 @@ class Response implements ResponseInterface
                 282, // XGTITLE
             )
         );
+    }
+
+    public function isReadable()
+    {
+        return $this->readable;
+    }
+
+    public function pause()
+    {
+
+    }
+
+    public function resume()
+    {
+
+    }
+
+    public function pipe(WritableStreamInterface $dest, array $options = array())
+    {
+        Util::pipe($this, $dest, $options);
+
+        return $dest;
+    }
+
+    public function close(\Exception $error = null)
+    {
+        if (!$this->readable) {
+            return;
+        }
+
+        $this->readable = false;
+
+        $this->emit('end', array($error, $this));
+
+        $this->removeAllListeners();
+    }
+
+    public function handleData($data)
+    {
+        $this->buffer .= $data;
+
+        if (false !== strpos($this->buffer, "\r\n")) {
+            if (!preg_match('/^(\d{3}) (.+)$/s', trim($this->buffer), $matches)) {
+                throw new \InvalidArgumentException(
+                    sprintf('Invalid response: "%s"', trim($response))
+                );
+            }
+
+            if ($matches[1] < 100 || $matches[1] >= 600) {
+                throw new \RuntimeException(
+                    sprintf('Invalid status code: %d', $matches[1])
+                );
+            }
+
+            $this->buffer = null;
+
+            $this->stream->removeListener('data', array($this, 'handleData'));
+            $this->stream->removeListener('end', array($this, 'handleEnd'));
+            $this->stream->removeListener('error', array($this, 'handleError'));
+
+            $this->statusCode = $matches[1];
+            $this->message = $matches[2];
+
+            $this->close();
+        }
+    }
+
+    public function handleEnd()
+    {
+        var_dump(__FUNCTION__);
+    }
+
+    public function handleError()
+    {
+        var_dump(__FUNCTION__);
     }
 }
