@@ -1,5 +1,5 @@
 {
-    "hash": "9f25577183247eafd663e772ba3e72e6",
+    "hash": "d06e046df55a235559f04ae2d7fafc96",
     "packages": [
         {
             "name": "evenement/evenement",
@@ -245,7 +245,7 @@
         "react/promise": 20
     },
     "platform": {
-        "php": ">=5.3.3"
+        "php": ">=5.4.0"
     },
     "platform-dev": [
 
