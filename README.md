@@ -46,7 +46,7 @@ $client
     ->then(function (React\Nntp\Command\CommandInterface $command) use (&$group, &$format, $client) {
         $group = $command->getResult();
 
-        return $client->overview($group->getFirst() . '-' . ($group->getFirst() + 99, $format);
+        return $client->overview($group->getFirst() . '-' . ($group->getFirst() + 99), $format);
     })
     ->then(function (React\Nntp\Command\CommandInterface $command) use ($client) {
         $articles = $command->getResult();
