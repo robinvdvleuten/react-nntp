@@ -1,5 +1,5 @@
 {
-    "hash": "d06e046df55a235559f04ae2d7fafc96",
+    "hash": "2b5431b7b662fe0d005e4096d06ab879",
     "packages": [
         {
             "name": "evenement/evenement",
@@ -89,49 +89,6 @@
                 "url"
             ],
             "time": "2013-03-07 22:13:59"
-        },
-        {
-            "name": "react/curry",
-            "version": "v1.1.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/reactphp/curry",
-                "reference": "v1.1.1"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://github.com/reactphp/curry/archive/v1.1.1.zip",
-                "reference": "v1.1.1",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.2"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.0-dev"
-                }
-            },
-            "autoload": {
-                "psr-0": {
-                    "React\\Curry": "src"
-                },
-                "files": [
-                    "src/React/Curry/functions.php"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "description": "Partial function application.",
-            "keywords": [
-                "curry",
-                "currying",
-                "functional-programming"
-            ],
-            "time": "2013-01-04 17:21:07"
         },
         {
             "name": "react/promise",

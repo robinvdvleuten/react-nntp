@@ -5,17 +5,17 @@ namespace React\Nntp\Command;
 use React\EventLoop\LoopInterface;
 use React\Nntp\Group;
 use React\Nntp\Response\ResponseInterface;
-use React\Stream\ReadableStreamInterface;
+use React\Stream\Stream;
 
 class GroupCommand extends Command implements CommandInterface
 {
-    protected $group;
-    protected $name;
+    private $group;
+    private $name;
 
     /**
      * Constructor.
      */
-    public function __construct(ReadableStreamInterface $stream, LoopInterface $loop, $name)
+    public function __construct(Stream $stream, LoopInterface $loop, $name)
     {
         $this->name = $name;
 
@@ -51,14 +51,14 @@ class GroupCommand extends Command implements CommandInterface
      */
     public function getResponseHandlers()
     {
-        return array(
-            ResponseInterface::GROUP_SELECTED => array(
+        return [
+            ResponseInterface::GROUP_SELECTED => [
                 $this, 'handleGroupSelectedResponse'
-            ),
-            ResponseInterface::NO_SUCH_GROUP => array(
+            ],
+            ResponseInterface::NO_SUCH_GROUP => [
                 $this, 'handleErrorResponse'
-            ),
-        );
+            ],
+        ];
     }
 
     public function handleGroupSelectedResponse(ResponseInterface $response)

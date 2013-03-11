@@ -54,14 +54,12 @@ class Client
 
     public function authenticate($username, $password)
     {
-        $that = $this;
-
         return $this
             ->authInfo('user', $username)
             ->then(
-                function (CommandInterface $command) use ($password, $that) {
+                function (CommandInterface $command) use ($password) {
                     if (ResponseInterface::AUTHENTICATION_CONTINUE == $command->getResponse()->getStatusCode()) {
-                        return $that->authInfo('pass', $password);
+                        return $this->authInfo('pass', $password);
                     }
 
                     return When::resolve($command);

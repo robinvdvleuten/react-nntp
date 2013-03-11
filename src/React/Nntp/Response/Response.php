@@ -56,9 +56,9 @@ class Response extends EventEmitter implements ResponseInterface, ReadableStream
         $this->loop = $loop;
         $this->stream = $stream;
 
-        $this->stream->on('data', array($this, 'handleData'));
-        $this->stream->on('end', array($this, 'handleEnd'));
-        $this->stream->on('error', array($this, 'handleError'));
+        $this->stream->on('data', [$this, 'handleData']);
+        $this->stream->on('end', [$this, 'handleEnd']);
+        $this->stream->on('error', [$this, 'handleError']);
     }
 
     /**
@@ -84,7 +84,7 @@ class Response extends EventEmitter implements ResponseInterface, ReadableStream
     {
         return in_array(
             $this->getStatusCode(),
-            array(
+            [
                 100, // HELP
                 101, // CAPABILITIES
                 211, // LISTGROUP (also not multi-line with GROUP)
@@ -97,7 +97,7 @@ class Response extends EventEmitter implements ResponseInterface, ReadableStream
                 230, // NEWNEWS
                 231, // NEWGROUPS
                 282, // XGTITLE
-            )
+            ]
         );
     }
 
@@ -116,7 +116,7 @@ class Response extends EventEmitter implements ResponseInterface, ReadableStream
 
     }
 
-    public function pipe(WritableStreamInterface $dest, array $options = array())
+    public function pipe(WritableStreamInterface $dest, array $options = [])
     {
         Util::pipe($this, $dest, $options);
 
@@ -131,7 +131,7 @@ class Response extends EventEmitter implements ResponseInterface, ReadableStream
 
         $this->readable = false;
 
-        $this->emit('end', array($error, $this));
+        $this->emit('end', [$error, $this]);
 
         $this->removeAllListeners();
     }
@@ -155,9 +155,9 @@ class Response extends EventEmitter implements ResponseInterface, ReadableStream
 
             $this->buffer = null;
 
-            $this->stream->removeListener('data', array($this, 'handleData'));
-            $this->stream->removeListener('end', array($this, 'handleEnd'));
-            $this->stream->removeListener('error', array($this, 'handleError'));
+            $this->stream->removeListener('data', [$this, 'handleData']);
+            $this->stream->removeListener('end', [$this, 'handleEnd']);
+            $this->stream->removeListener('error', [$this, 'handleError']);
 
             $this->statusCode = $matches[1];
             $this->message = $matches[2];

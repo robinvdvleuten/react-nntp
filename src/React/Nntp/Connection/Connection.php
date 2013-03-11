@@ -50,7 +50,7 @@ class Connection
         return $this
             ->getConnectorForTransport($transport)
             ->createTcp($address, $port)
-            ->then(array($this, 'handleConnect'));
+            ->then([$this, 'handleConnect']);
     }
 
     public function close()
@@ -68,10 +68,10 @@ class Connection
             ));
         }
 
-        $arguments = array_merge(array(
+        $arguments = array_merge([
             $this->stream,
             $this->loop,
-        ), $arguments);
+        ], $arguments);
 
         $reflect  = new \ReflectionClass($class);
         $command = $reflect->newInstanceArgs($arguments);
@@ -113,7 +113,7 @@ class Connection
 
     protected function getConnectorForTransport($transport = 'tcp')
     {
-        if (in_array($transport, array('ssl', 'tsl'))) {
+        if (in_array($transport, ['ssl', 'tsl'])) {
             return $this->secureConnector;
         } else {
             return $this->connector;

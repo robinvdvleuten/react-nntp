@@ -9,6 +9,7 @@ use React\Nntp\Response\MultilineResponse;
 use React\Nntp\Response\Response;
 use React\Nntp\Response\ResponseInterface;
 use React\Stream\ReadableStreamInterface;
+use React\Stream\Stream;
 use React\Stream\Util;
 use React\Stream\WritableStreamInterface;
 
@@ -24,19 +25,19 @@ abstract class Command extends EventEmitter implements CommandInterface, Readabl
     /**
      * Constructor.
      */
-    public function __construct(WritableStreamInterface $stream, LoopInterface $loop)
+    public function __construct(Stream $stream, LoopInterface $loop)
     {
         $this->stream = $stream;
         $this->loop = $loop;
 
         $this->response = new Response($this, $this->loop);
 
-        $this->stream->on('drain', array($this, 'handleDrain'));
-        $this->stream->on('data', array($this, 'handleData'));
-        $this->stream->on('end', array($this, 'handleEnd'));
-        $this->stream->on('error', array($this, 'handleError'));
+        $this->stream->on('drain', [$this, 'handleDrain']);
+        $this->stream->on('data', [$this, 'handleData']);
+        $this->stream->on('end', [$this, 'handleEnd']);
+        $this->stream->on('error', [$this, 'handleError']);
 
-        $this->on('response', array($this, 'handleResponse'));
+        $this->on('response', [$this, 'handleResponse']);
     }
 
     /**
@@ -90,7 +91,7 @@ abstract class Command extends EventEmitter implements CommandInterface, Readabl
 
     }
 
-    public function pipe(WritableStreamInterface $dest, array $options = array())
+    public function pipe(WritableStreamInterface $dest, array $options = [])
     {
         Util::pipe($this, $dest, $options);
 
@@ -130,7 +131,7 @@ abstract class Command extends EventEmitter implements CommandInterface, Readabl
 
         $this->readable = false;
 
-        $this->emit('end', array($error, $this));
+        $this->emit('end', [$error, $this]);
 
         $this->removeAllListeners();
     }
@@ -151,35 +152,31 @@ abstract class Command extends EventEmitter implements CommandInterface, Readabl
             $buffer = $this->buffer;
             $this->buffer = null;
 
-            $this->stream->removeListener('drain', array($this, 'handleDrain'));
-            $this->stream->removeListener('data', array($this, 'handleData'));
-            $this->stream->removeListener('end', array($this, 'handleEnd'));
-            $this->stream->removeListener('error', array($this, 'handleError'));
+            $this->stream->removeListener('drain', [$this, 'handleDrain']);
+            $this->stream->removeListener('data', [$this, 'handleData']);
+            $this->stream->removeListener('end', [$this, 'handleEnd']);
+            $this->stream->removeListener('error', [$this, 'handleError']);
 
             $this->setResponse($response);
 
-            $that = $this;
-            $stream = $this->stream;
-            $loop = $this->loop;
+            $response->on('end', function () use ($response) {
+                if ($response->isMultilineResponse() && $this->expectsMultilineResponse()) {
+                    $multilineResponse = new MultilineResponse($response, $this->stream, $this->loop);
+                    $this->setResponse($multilineResponse);
 
-            $response->on('end', function () use ($that, $stream, $loop, $response) {
-                if ($response->isMultilineResponse() && $that->expectsMultilineResponse()) {
-                    $multilineResponse = new MultilineResponse($response, $stream, $loop);
-                    $that->setResponse($multilineResponse);
-
-                    $multilineResponse->on('end', function () use ($that, $multilineResponse) {
-                        $that->emit('response', array($multilineResponse));
-                        $that->close();
+                    $multilineResponse->on('end', function () use ($multilineResponse) {
+                        $this->emit('response', [$multilineResponse]);
+                        $this->close();
                     });
 
-                    $stream->resume();
+                    $this->stream->resume();
                 } else {
-                    $that->emit('response', array($response));
-                    $that->close();
+                    $this->emit('response', [$response]);
+                    $this->close();
                 }
             });
 
-            $this->emit('data', array($buffer));
+            $this->emit('data', [$buffer]);
         }
 
         $this->stream->resume();
@@ -210,7 +207,7 @@ abstract class Command extends EventEmitter implements CommandInterface, Readabl
             )));
         }
 
-        call_user_func_array($handlers[$response->getStatusCode()], array($response));
+        call_user_func_array($handlers[$response->getStatusCode()], [$response]);
     }
 
     public function handleErrorResponse(ResponseInterface $response)

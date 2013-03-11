@@ -3,27 +3,49 @@
 namespace React\Tests\Nntp\Response;
 
 use React\Nntp\Response\MultilineResponse;
-use React\Nntp\Response\Response;
 
 class MultilineResponseTest extends \PHPUnit_Framework_TestCase
 {
+    private $loop;
+    private $response;
+    private $stream;
+
+    public function setUp()
+    {
+        $this->response = $this->getMock('React\Nntp\Response\ResponseInterface');
+
+        $this->loop = $this->getMock('React\EventLoop\LoopInterface');
+
+        $this->stream = $this->getMockbuilder('React\Stream\Stream')
+            ->disableOriginalConstructor()
+            ->getMock();
+    }
+
     /**
      * @test
      */
     public function multilineResponseShouldBeCreatedFromResponse()
     {
-        // @todo This should be a mock
-        $response = Response::createFromString("200 Successful response");
-        $multilineResponse = MultilineResponse::createFromResponse($response);
+        $this->response->expects($this->once())
+            ->method('getStatusCode')
+            ->will($this->returnValue(200))
+        ;
 
-        $this->assertInstanceOf('React\\Nntp\\Response\\MultilineResponseInterface', $multilineResponse);
+        $this->response->expects($this->once())
+            ->method('getMessage')
+            ->will($this->returnValue('Successful response'))
+        ;
+
+        $multilineResponse = new MultilineResponse($this->response, $this->stream, $this->loop);
+
+        $this->assertInstanceOf('React\Nntp\Response\MultilineResponseInterface', $multilineResponse);
         $this->assertEquals(200, $multilineResponse->getStatusCode());
-        $this->assertEquals("Successful response", $multilineResponse->getMessage());
+        $this->assertEquals('Successful response', $multilineResponse->getMessage());
 
         $this->assertTrue($multilineResponse->isMultilineResponse());
-        $this->assertFalse($multilineResponse->isFinished());
 
         $lines = $multilineResponse->getLines();
+
         $this->assertTrue(is_array($lines));
         $this->assertTrue(empty($lines));
     }
@@ -33,15 +55,12 @@ class MultilineResponseTest extends \PHPUnit_Framework_TestCase
      */
     public function responseIsFinishedWhenReceivedDot()
     {
-        // @todo This should be a mock
-        $response = Response::createFromString("200 Successful response");
-        $multilineResponse = MultilineResponse::createFromResponse($response);
+        $multilineResponse = new MultilineResponse($this->response, $this->stream, $this->loop);
 
-        $multilineResponse->appendData("\r\n.\r\n");
-
-        $this->assertTrue($multilineResponse->isFinished());
+        $multilineResponse->handleData(".\r\n");
 
         $lines = $multilineResponse->getLines();
+
         $this->assertTrue(is_array($lines));
         $this->assertTrue(empty($lines));
     }
@@ -51,17 +70,14 @@ class MultilineResponseTest extends \PHPUnit_Framework_TestCase
      */
     public function dataShouldBeExplodedToLines()
     {
-        // @todo This should be a mock
-        $response = Response::createFromString("200 Successful response");
-        $multilineResponse = MultilineResponse::createFromResponse($response);
+        $multilineResponse = new MultilineResponse($this->response, $this->stream, $this->loop);
 
-        $multilineResponse->appendData("\r\nAppended line");
-        $multilineResponse->appendData("\r\nAppended line");
-        $multilineResponse->appendData("\r\n.\r\n");
-
-        $this->assertTrue($multilineResponse->isFinished());
+        $multilineResponse->handleData("Appended line\r\n");
+        $multilineResponse->handleData("Appended line\r\n");
+        $multilineResponse->handleData(".\r\n");
 
         $lines = $multilineResponse->getLines();
+
         $this->assertTrue(is_array($lines));
         $this->assertEquals(2, count($lines));
     }

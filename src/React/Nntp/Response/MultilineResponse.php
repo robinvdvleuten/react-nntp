@@ -16,7 +16,7 @@ use React\Stream\WritableStreamInterface;
 class MultilineResponse extends EventEmitter implements MultilineResponseInterface, ReadableStreamInterface
 {
     private $buffer;
-    private $lines;
+    private $lines = [];
     private $loop;
     private $readable = true;
     private $response;
@@ -35,11 +35,9 @@ class MultilineResponse extends EventEmitter implements MultilineResponseInterfa
         $this->stream = $stream;
         $this->loop = $loop;
 
-        $this->lines = array();
-
-        $this->stream->on('data', array($this, 'handleData'));
-        $this->stream->on('end', array($this, 'handleEnd'));
-        $this->stream->on('error', array($this, 'handleError'));
+        $this->stream->on('data', [$this, 'handleData']);
+        $this->stream->on('end', [$this, 'handleEnd']);
+        $this->stream->on('error', [$this, 'handleError']);
     }
 
     /**
@@ -89,7 +87,7 @@ class MultilineResponse extends EventEmitter implements MultilineResponseInterfa
 
     }
 
-    public function pipe(WritableStreamInterface $dest, array $options = array())
+    public function pipe(WritableStreamInterface $dest, array $options = [])
     {
         Util::pipe($this, $dest, $options);
 
@@ -104,7 +102,7 @@ class MultilineResponse extends EventEmitter implements MultilineResponseInterfa
 
         $this->readable = false;
 
-        $this->emit('end', array($error, $this));
+        $this->emit('end', [$error, $this]);
 
         $this->removeAllListeners();
     }
@@ -126,9 +124,9 @@ class MultilineResponse extends EventEmitter implements MultilineResponseInterfa
 
             $this->buffer = null;
 
-            $this->stream->removeListener('data', array($this, 'handleData'));
-            $this->stream->removeListener('end', array($this, 'handleEnd'));
-            $this->stream->removeListener('error', array($this, 'handleError'));
+            $this->stream->removeListener('data', [$this, 'handleData']);
+            $this->stream->removeListener('end', [$this, 'handleEnd']);
+            $this->stream->removeListener('error', [$this, 'handleError']);
 
             $this->close();
         }

@@ -5,13 +5,14 @@ namespace React\Nntp\Command;
 use React\EventLoop\LoopInterface;
 use React\Nntp\Response\ResponseInterface;
 use React\Stream\ReadableStreamInterface;
+use React\Stream\Stream;
 
 class AuthInfoCommand extends Command implements CommandInterface
 {
     protected $type;
     protected $value;
 
-    public function __construct(ReadableStreamInterface $stream, LoopInterface $loop, $type, $value)
+    public function __construct(Stream $stream, LoopInterface $loop, $type, $value)
     {
         $this->type = $type;
         $this->value = $value;
@@ -48,17 +49,17 @@ class AuthInfoCommand extends Command implements CommandInterface
      */
     public function getResponseHandlers()
     {
-        return array(
-            ResponseInterface::AUTHENTICATION_ACCEPTED => array(
+        return [
+            ResponseInterface::AUTHENTICATION_ACCEPTED => [
                 $this, 'handleAuthenticatedResponse'
-            ),
-            ResponseInterface::AUTHENTICATION_CONTINUE => array(
+            ],
+            ResponseInterface::AUTHENTICATION_CONTINUE => [
                 $this, 'handleAuthenticatedResponse'
-            ),
-            ResponseInterface::AUTHENTICATION_REJECTED => array(
+            ],
+            ResponseInterface::AUTHENTICATION_REJECTED => [
                 $this, 'handleErrorResponse'
-            )
-        );
+            ],
+        ];
     }
 
     public function handleAuthenticatedResponse(ResponseInterface $response)

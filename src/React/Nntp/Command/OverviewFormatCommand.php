@@ -38,19 +38,20 @@ class OverviewFormatCommand extends Command implements CommandInterface
      */
     public function getResponseHandlers()
     {
-        return array(
-            ResponseInterface::GROUPS_FOLLOW => array(
+        return [
+            ResponseInterface::GROUPS_FOLLOW => [
                 $this, 'handleGroupsFollowResponse'
-            ),
-            ResponseInterface::NO_SUCH_GROUP => array(
+            ],
+            ResponseInterface::NO_SUCH_GROUP => [
                 $this, 'handleErrorResponse'
-            )
-        );
+            ]
+        ];
     }
 
     public function handleGroupsFollowResponse(MultilineResponseInterface $response)
     {
-        $this->format = array();
+        $this->format = [];
+
         foreach ($response->getLines() as $line) {
             if (0 == strcasecmp(substr($line, -5, 5), ':full')) {
                 // ':full' is _not_ included in tag, but value set to true
