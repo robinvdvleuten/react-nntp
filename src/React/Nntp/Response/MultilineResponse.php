@@ -15,6 +15,7 @@ use React\Stream\WritableStreamInterface;
  */
 class MultilineResponse extends EventEmitter implements MultilineResponseInterface, ReadableStreamInterface
 {
+    private $buffer;
     private $lines;
     private $loop;
     private $readable = true;

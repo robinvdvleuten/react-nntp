@@ -143,7 +143,7 @@ class Response extends EventEmitter implements ResponseInterface, ReadableStream
         if (false !== strpos($this->buffer, "\r\n")) {
             if (!preg_match('/^(\d{3}) (.+)$/s', trim($this->buffer), $matches)) {
                 throw new \InvalidArgumentException(
-                    sprintf('Invalid response: "%s"', trim($response))
+                    sprintf('Invalid response: "%s"', trim($this->buffer))
                 );
             }
 

@@ -2,11 +2,9 @@
 
 namespace React\Nntp\Connection;
 
-use React\Dns\Resolver\Resolver;
 use React\EventLoop\LoopInterface;
 use React\Nntp\Command\Command;
 use React\Nntp\Command\CommandInterface;
-use React\Nntp\Response\MultilineResponse;
 use React\Nntp\Response\Response;
 use React\Promise\Deferred;
 use React\SocketClient\Connector;

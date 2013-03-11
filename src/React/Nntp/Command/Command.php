@@ -24,7 +24,7 @@ abstract class Command extends EventEmitter implements CommandInterface, Readabl
     /**
      * Constructor.
      */
-    public function __construct(ReadableStreamInterface $stream, LoopInterface $loop)
+    public function __construct(WritableStreamInterface $stream, LoopInterface $loop)
     {
         $this->stream = $stream;
         $this->loop = $loop;
@@ -164,11 +164,11 @@ abstract class Command extends EventEmitter implements CommandInterface, Readabl
 
             $response->on('end', function () use ($that, $stream, $loop, $response) {
                 if ($response->isMultilineResponse() && $that->expectsMultilineResponse()) {
-                    $response = new MultilineResponse($response, $stream, $loop);
-                    $that->setResponse($response);
+                    $multilineResponse = new MultilineResponse($response, $stream, $loop);
+                    $that->setResponse($multilineResponse);
 
-                    $response->on('end', function () use ($that, $response) {
-                        $that->emit('response', array($response));
+                    $multilineResponse->on('end', function () use ($that, $multilineResponse) {
+                        $that->emit('response', array($multilineResponse));
                         $that->close();
                     });
 

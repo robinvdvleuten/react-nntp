@@ -2,7 +2,6 @@
 
 namespace React\Nntp\Command;
 
-use React\Nntp\Group;
 use React\Nntp\Response\MultilineResponseInterface;
 use React\Nntp\Response\ResponseInterface;
 
