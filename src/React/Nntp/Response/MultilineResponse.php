@@ -111,7 +111,7 @@ class MultilineResponse extends EventEmitter implements MultilineResponseInterfa
     {
         $this->buffer .= $data;
 
-        if (false !== (bool) preg_match("/\r\n.(\r\n)?$/", $this->buffer)) {
+        if (false !== (bool) preg_match("/.\r\n?$/", $this->buffer)) {
             $this->lines = explode("\r\n", $this->buffer);
 
             if (end($this->lines) === "") {
