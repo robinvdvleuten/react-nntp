@@ -50,12 +50,19 @@ class Connection
         return $this
             ->getConnectorForTransport($transport)
             ->createTcp($address, $port)
-            ->then([$this, 'handleConnect']);
+            ->then([$this, 'handleConnect'])
+        ;
     }
 
+    /**
+     * Close the current connected stream.
+     */
     public function close()
     {
-        $this->stream->close();
+        // Stream is only available when successfully connected.
+        if ($this->stream) {
+            $this->stream->close();
+        }
     }
 
     public function executeCommand($command, $arguments)
