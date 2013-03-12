@@ -13,10 +13,4 @@ tools:
     php_analyzer:
         filter:
             excluded_paths: [ 'tests' ]
-        doc_comment_fixes:
-            enabled: true
-        reflection_fixes:
-            enabled: true
-        use_statement_fixes:
-            order_alphabetically:  true
     sensiolabs_security_checker: true
