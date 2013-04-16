@@ -1,0 +1,7 @@
+name 'robinvdvleuten-phpenv'
+version '0.0.1'
+description "Installs phpenv through Puppet."
+license MIT
+dependency 'puppetlabs/apt', '1.1.0'
+dependency 'puppetlabs/git', '0.0.2'
+dependency 'robinvdvleuten/phpbuild', '0.0.1'
