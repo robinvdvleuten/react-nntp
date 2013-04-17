@@ -28,11 +28,21 @@ define phpenv::php(
 
   $phpVersionDir = "${$phpenv::phpenvDir}/versions/${phpVersion}"
 
-  exec { "compiles php-${phpbuildVersion}":
+  exec { "compiles php-${phpVersion}":
     command => "${phpbuild::phpbuildDir}/bin/php-build -i development ${phpVersion} ${phpVersionDir}",
     creates => "${phpVersionDir}/bin/php",
     timeout => 0,
     logoutput => true,
     require => [ File["/etc/profile.d/phpbuild.sh"], File["/etc/profile.d/phpenv.sh"], Package["libmcrypt-dev"] ],
+  }
+
+  exec { "rehash phpenv":
+    command => "${phpenv::phpenvDir}/bin/phpenv rehash",
+    require => Exec["compiles php-${phpVersion}"],
+  }
+
+  exec { "set ${phpVersion} as global":
+    command => "${phpenv::phpenvDir}/bin/phpenv global ${phpVersion}",
+    require => Exec["rehash phpenv"],
   }
 }

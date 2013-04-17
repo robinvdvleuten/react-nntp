@@ -2,5 +2,5 @@ node default {
   # Core requirements
   include git
 
-  phpenv::php { "5.4": }
+  phpenv::php { "5.4.14": }
 }
