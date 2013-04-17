@@ -29,7 +29,7 @@ define phpenv::php(
   $phpVersionDir = "${$phpenv::phpenvDir}/versions/${phpVersion}"
 
   exec { "compiles php-${phpVersion}":
-    command => "${phpbuild::phpbuildDir}/bin/php-build -i development ${phpVersion} ${phpVersionDir}",
+    command => "${phpbuild::phpbuildDir}/bin/php-build -i development --pear ${phpVersion} ${phpVersionDir}",
     creates => "${phpVersionDir}/bin/php",
     timeout => 0,
     logoutput => true,
