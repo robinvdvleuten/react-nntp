@@ -62,4 +62,19 @@ $client->run();
 
 To run the test suite, you need PHPUnit.
 
-    $ phpunit
+```bash
+$ phpunit
+```
+
+## Vagrant
+
+You can also use the configured [Vagrant](http://www.vagrantup.com) VM for local development.
+Move into the `/vagrant` directory and run the following commands;
+
+```bash
+# Resolve the Puppet dependencies through librarian-puppet.
+$ gem install librarian-puppet
+$ librarian-puppet install
+
+$ vagrant up
+```
