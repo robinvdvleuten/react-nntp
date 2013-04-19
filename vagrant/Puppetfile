@@ -4,3 +4,4 @@ mod "puppetlabs/apt"
 mod "puppetlabs/git"
 mod "puppetlabs/stdlib"
 
+mod "robinvdvleuten/phpenv"

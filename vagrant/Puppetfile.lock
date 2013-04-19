@@ -5,9 +5,16 @@ FORGE
       puppetlabs/stdlib (>= 2.2.1)
     puppetlabs/git (0.0.2)
     puppetlabs/stdlib (4.0.2)
+    robinvdvleuten/phpbuild (0.1.0)
+      puppetlabs/git (= 0.0.2)
+    robinvdvleuten/phpenv (0.1.0)
+      puppetlabs/apt (= 1.1.0)
+      puppetlabs/git (= 0.0.2)
+      robinvdvleuten/phpbuild (= 0.1.0)
 
 DEPENDENCIES
   puppetlabs/apt (>= 0)
   puppetlabs/git (>= 0)
   puppetlabs/stdlib (>= 0)
+  robinvdvleuten/phpenv (>= 0)
 
