@@ -6,4 +6,4 @@ license     'MIT'
 
 dependency 'puppetlabs/apt',          '1.1.0'
 dependency 'puppetlabs/git',          '0.0.2'
-dependency 'robinvdvleuten/phpbuild', '0.1.0', 'https://github.com/RobinvdVleuten/puppet-phpbuild'
+dependency 'robinvdvleuten/phpbuild', '0.1.0'
