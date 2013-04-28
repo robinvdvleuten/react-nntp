@@ -1,6 +1,6 @@
 # NNTP Component
 
-Network News Transfer Protocol (NNTP) bindings for React.
+Network News Transfer Protocol (NNTP) bindings for [React](http://reactphp.org).
 This component builds on top of the `SocketClient` component to implement NNTP.
 
 [![Build Status](https://travis-ci.org/RobinvdVleuten/react-nntp.png?branch=master)](https://travis-ci.org/RobinvdVleuten/react-nntp) [![Coverage Status](https://coveralls.io/repos/RobinvdVleuten/react-nntp/badge.png?branch=master)](https://coveralls.io/r/RobinvdVleuten/react-nntp)
