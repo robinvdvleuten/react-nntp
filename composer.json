@@ -15,10 +15,17 @@
         "react/react": "0.3.*@dev",
         "react/promise": "1.0.*@dev"
     },
+    "require-dev": {
+        "phpunit/phpunit": "3.7.*",
+        "satooshi/php-coveralls": "dev-master"
+    },
     "autoload": {
         "psr-0": {
             "React\\Nntp": "src/"
         }
+    },
+    "config": {
+        "bin-dir": "bin"
     },
     "extra": {
         "branch-alias": {
