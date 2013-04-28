@@ -49,7 +49,7 @@ class Connection
     {
         return $this
             ->getConnectorForTransport($transport)
-            ->createTcp($address, $port)
+            ->create($address, $port)
             ->then([$this, 'handleConnect'])
         ;
     }
