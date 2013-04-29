@@ -3,6 +3,7 @@
 namespace React\Tests\Nntp\Command;
 
 use React\Nntp\Command\ListCommand;
+use React\Nntp\Response\ResponseInterface;
 
 class ListCommandTest extends \PHPUnit_Framework_TestCase
 {
@@ -24,6 +25,17 @@ class ListCommandTest extends \PHPUnit_Framework_TestCase
         $command = new ListCommand($this->createStreamMock(), $this->createLoopMock());
 
         $this->assertNull($command->getResult());
+    }
+
+    public function testCommandShouldImplementAllResponseCodes()
+    {
+        $command = new ListCommand($this->createStreamMock(), $this->createLoopMock());
+
+        $handlers = $command->getResponseHandlers();
+
+        $this->assertArrayHasKey(ResponseInterface::GROUPS_FOLLOW, $handlers);
+        $this->assertArrayHasKey(ResponseInterface::SYNTAX_ERROR, $handlers);
+        $this->assertArrayHasKey(ResponseInterface::NOT_SUPPORTED, $handlers);
     }
 
     /**
