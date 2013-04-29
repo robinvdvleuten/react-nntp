@@ -101,6 +101,7 @@ class Client
     /**
      * @method \React\Promise\PromiseInterface authInfo(string $type, string $value)
      * @method \React\Promise\PromiseInterface group(string $name)
+     * @method \React\Promise\PromiseInterface list()
      * @method \React\Promise\PromiseInterface overview(string $range, array $format)
      * @method \React\Promise\PromiseInterface overviewFormat()
      */
