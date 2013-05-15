@@ -3,7 +3,6 @@
 namespace React\Nntp\Response;
 
 use Evenement\EventEmitter;
-use React\EventLoop\LoopInterface;
 use React\Stream\ReadableStreamInterface;
 use React\Stream\Util;
 use React\Stream\WritableStreamInterface;
@@ -19,11 +18,6 @@ class Response extends EventEmitter implements ResponseInterface, ReadableStream
      * @var string
      */
     private $buffer;
-
-    /**
-     * @var \React\EventLoop\LoopInterface
-     */
-    private $loop;
 
     /**
      * @var string
@@ -49,11 +43,9 @@ class Response extends EventEmitter implements ResponseInterface, ReadableStream
      * Constructor
      *
      * @param \React\Stream\WritableStreamInterface $stream A WritableStreamInterface instance.
-     * @param \React\EventLoop\LoopInterface        $loop   A LoopInterface instance.
      */
-    public function __construct(WritableStreamInterface $stream, LoopInterface $loop)
+    public function __construct(WritableStreamInterface $stream)
     {
-        $this->loop = $loop;
         $this->stream = $stream;
 
         $this->stream->on('data', [$this, 'handleData']);
@@ -116,7 +108,7 @@ class Response extends EventEmitter implements ResponseInterface, ReadableStream
 
     }
 
-    public function pipe(WritableStreamInterface $dest, array $options = [])
+    public function pipe(WritableStreamInterface $dest, array $options = array())
     {
         Util::pipe($this, $dest, $options);
 

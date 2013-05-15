@@ -6,13 +6,10 @@ use React\Nntp\Response\Response;
 
 class ResponseTest extends \PHPUnit_Framework_TestCase
 {
-    private $loop;
     private $stream;
 
     public function setUp()
     {
-        $this->loop = $this->getMock('React\EventLoop\LoopInterface');
-
         $this->stream = $this->getMockbuilder('React\Stream\Stream')
             ->disableOriginalConstructor()
             ->getMock();
@@ -23,7 +20,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
      */
     public function responseShouldBeCreatedFromString()
     {
-        $response = new Response($this->stream, $this->loop);
+        $response = new Response($this->stream);
 
         $response->handleData("200 Successful response\r\n");
 
@@ -39,7 +36,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     {
         $this->setExpectedException('InvalidArgumentException');
 
-        $response = new Response($this->stream, $this->loop);
+        $response = new Response($this->stream);
 
         $response->handleData("A very very invalid string\r\n");
     }
@@ -51,7 +48,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     {
         $this->setExpectedException('RuntimeException');
 
-        $response = new Response($this->stream, $this->loop);
+        $response = new Response($this->stream);
 
         $response->handleData("000 Unknown status code\r\n");
     }
@@ -61,8 +58,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
      */
     public function indicatingMultilineWhenSpecificStatusCode()
     {
-        // $response = Response::createFromString("222 Multiline response");
-        $response = new Response($this->stream, $this->loop);
+        $response = new Response($this->stream);
 
         $response->handleData("222 Multiline response\r\n");
 
@@ -74,7 +70,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
      */
     public function indicatingNotMultilineWhenSpecificStatusCode()
     {
-        $response = new Response($this->stream, $this->loop);
+        $response = new Response($this->stream);
 
         $response->handleData("200 Not multiline response\r\n");
 

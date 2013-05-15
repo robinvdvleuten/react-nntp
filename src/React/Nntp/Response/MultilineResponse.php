@@ -3,7 +3,6 @@
 namespace React\Nntp\Response;
 
 use Evenement\EventEmitter;
-use React\EventLoop\LoopInterface;
 use React\Stream\ReadableStreamInterface;
 use React\Stream\Util;
 use React\Stream\WritableStreamInterface;
@@ -17,7 +16,6 @@ class MultilineResponse extends EventEmitter implements MultilineResponseInterfa
 {
     private $buffer;
     private $lines = [];
-    private $loop;
     private $readable = true;
     private $response;
     private $stream;
@@ -29,11 +27,10 @@ class MultilineResponse extends EventEmitter implements MultilineResponseInterfa
      * @param \React\Stream\WritableStreamInterface  $stream   A WritableStreamInterface instance.
      * @param \React\EventLoop\LoopInterface         $loop     A LoopInterface instance.
      */
-    public function __construct(ResponseInterface $response, WritableStreamInterface $stream, LoopInterface $loop)
+    public function __construct(ResponseInterface $response, WritableStreamInterface $stream)
     {
         $this->response = $response;
         $this->stream = $stream;
-        $this->loop = $loop;
 
         $this->stream->on('data', [$this, 'handleData']);
         $this->stream->on('end', [$this, 'handleEnd']);
@@ -87,7 +84,7 @@ class MultilineResponse extends EventEmitter implements MultilineResponseInterfa
 
     }
 
-    public function pipe(WritableStreamInterface $dest, array $options = [])
+    public function pipe(WritableStreamInterface $dest, array $options = array())
     {
         Util::pipe($this, $dest, $options);
 

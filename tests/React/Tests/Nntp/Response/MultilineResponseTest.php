@@ -6,15 +6,12 @@ use React\Nntp\Response\MultilineResponse;
 
 class MultilineResponseTest extends \PHPUnit_Framework_TestCase
 {
-    private $loop;
     private $response;
     private $stream;
 
     public function setUp()
     {
         $this->response = $this->getMock('React\Nntp\Response\ResponseInterface');
-
-        $this->loop = $this->getMock('React\EventLoop\LoopInterface');
 
         $this->stream = $this->getMockbuilder('React\Stream\Stream')
             ->disableOriginalConstructor()
@@ -36,7 +33,7 @@ class MultilineResponseTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue('Successful response'))
         ;
 
-        $multilineResponse = new MultilineResponse($this->response, $this->stream, $this->loop);
+        $multilineResponse = new MultilineResponse($this->response, $this->stream);
 
         $this->assertInstanceOf('React\Nntp\Response\MultilineResponseInterface', $multilineResponse);
         $this->assertEquals(200, $multilineResponse->getStatusCode());
@@ -55,7 +52,7 @@ class MultilineResponseTest extends \PHPUnit_Framework_TestCase
      */
     public function responseIsFinishedWhenReceivedDot()
     {
-        $multilineResponse = new MultilineResponse($this->response, $this->stream, $this->loop);
+        $multilineResponse = new MultilineResponse($this->response, $this->stream);
 
         $multilineResponse->handleData(".\r\n");
 
@@ -70,7 +67,7 @@ class MultilineResponseTest extends \PHPUnit_Framework_TestCase
      */
     public function dataShouldBeExplodedToLines()
     {
-        $multilineResponse = new MultilineResponse($this->response, $this->stream, $this->loop);
+        $multilineResponse = new MultilineResponse($this->response, $this->stream);
 
         $multilineResponse->handleData("Appended line\r\n");
         $multilineResponse->handleData("Appended line\r\n");
