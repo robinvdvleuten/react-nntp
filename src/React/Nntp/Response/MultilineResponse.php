@@ -65,10 +65,6 @@ class MultilineResponse extends WritableStream implements MultilineResponseInter
         if (false !== (bool) preg_match("/\.\r\n$/", $this->buffer)) {
             $this->lines = explode("\r\n", trim($this->buffer));
 
-            if (end($this->lines) === "") {
-                array_pop($this->lines);
-            }
-
             if (end($this->lines) === ".") {
                 array_pop($this->lines);
             }
