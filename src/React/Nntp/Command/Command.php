@@ -27,8 +27,6 @@ abstract class Command extends EventEmitter implements CommandInterface, Readabl
     {
         $this->stream = $stream;
 
-        $this->response = new Response($this);
-
         $this->stream->on('drain', [$this, 'handleDrain']);
         $this->stream->on('data', [$this, 'handleData']);
         $this->stream->on('end', [$this, 'handleEnd']);
@@ -88,7 +86,7 @@ abstract class Command extends EventEmitter implements CommandInterface, Readabl
 
     }
 
-    public function pipe(WritableStreamInterface $dest, array $options = [])
+    public function pipe(WritableStreamInterface $dest, array $options = array())
     {
         Util::pipe($this, $dest, $options);
 
@@ -135,30 +133,30 @@ abstract class Command extends EventEmitter implements CommandInterface, Readabl
 
     public function handleDrain()
     {
+        var_dump(__CLASS__);
         var_dump(__FUNCTION__);
     }
 
     public function handleData($data)
     {
         $this->buffer .= $data;
-        $this->stream->pause();
 
         if (false !== strpos($this->buffer, "\r\n")) {
-            $response = new Response($this);
+            $response = new Response();
+            $this->pipe($response);
 
             $buffer = $this->buffer;
             $this->buffer = null;
 
-            $this->stream->removeListener('drain', [$this, 'handleDrain']);
-            $this->stream->removeListener('data', [$this, 'handleData']);
-            $this->stream->removeListener('end', [$this, 'handleEnd']);
-            $this->stream->removeListener('error', [$this, 'handleError']);
-
             $this->setResponse($response);
 
             $response->on('end', function () use ($response) {
+                $this->stream->removeAllListeners();
+
                 if ($response->isMultilineResponse() && $this->expectsMultilineResponse()) {
-                    $multilineResponse = new MultilineResponse($response, $this->stream);
+                    $multilineResponse = new MultilineResponse($response);
+                    Util::pipe($this->stream, $multilineResponse);
+
                     $this->setResponse($multilineResponse);
 
                     $multilineResponse->on('end', function () use ($multilineResponse) {
@@ -175,8 +173,6 @@ abstract class Command extends EventEmitter implements CommandInterface, Readabl
 
             $this->emit('data', [$buffer]);
         }
-
-        $this->stream->resume();
     }
 
     public function handleEnd()

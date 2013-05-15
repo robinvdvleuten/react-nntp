@@ -13,21 +13,24 @@ use React\SocketClient\Connector;
 use React\SocketClient\ConnectorInterface;
 use React\SocketClient\SecureConnector;
 use React\Stream\Stream;
+use React\Stream\Util;
 use RuntimeException;
 
 class Connection
 {
     private $connector;
+    private $loop;
     private $secureConnector;
     private $stream;
 
     /**
      * Constructor.
      */
-    public function __construct(ConnectorInterface $connector, ConnectorInterface $secureConnector)
+    public function __construct(ConnectorInterface $connector, ConnectorInterface $secureConnector, LoopInterface $loop)
     {
         $this->connector = $connector;
         $this->secureConnector = $secureConnector;
+        $this->loop = $loop;
     }
 
     public static function factory(LoopInterface $loop, $resolver)
@@ -35,7 +38,7 @@ class Connection
         $connector = new Connector($loop, $resolver);
         $secureConnector = new SecureConnector($connector, $loop);
 
-        return new static($connector, $secureConnector);
+        return new static($connector, $secureConnector, $loop);
     }
 
     /**
@@ -78,6 +81,7 @@ class Connection
         $arguments = array_merge(array($this->stream), $arguments);
 
         $reflect  = new \ReflectionClass($class);
+
         $command = $reflect->newInstanceArgs($arguments);
 
         $deferred = new Deferred();
@@ -106,10 +110,15 @@ class Connection
         // @todo make this configurable.
         $this->stream->bufferSize = 1024;
 
-        $response = new Response($this->stream);
+        $response = new Response();
+        Util::pipe($this->stream, $response);
+
         $deferred = new Deferred();
 
-        $response->on('end', function () use ($response, $deferred) {
+        $response->on('close', function () use ($response, $deferred) {
+            // Remove listeners on stream so we get no conflicting listeners on future response objects.
+            $this->stream->removeAllListeners();
+
             if (!in_array($response->getStatusCode(), array(ResponseInterface::SERVICE_AVAILABLE_POSTING_ALLOWED, ResponseInterface::SERVICE_AVAILABLE_POSTING_PROHIBITED))) {
                 return $deferred->reject(BadResponseException::factory($response));
             }

@@ -2,15 +2,14 @@
 
 namespace React\Nntp\Response;
 
-use React\Stream\ReadableStream;
-use React\Stream\WritableStreamInterface;
+use React\Stream\WritableStream;
 
 /**
  * Response
  *
  * @author Robin van der Vleuten <robinvdvleuten@gmail.com>
  */
-class Response extends ReadableStream implements ResponseInterface
+class Response extends WritableStream implements ResponseInterface
 {
     /**
      * @var string
@@ -26,25 +25,6 @@ class Response extends ReadableStream implements ResponseInterface
      * @var integer
      */
     private $statusCode;
-
-    /**
-     * @var \React\Stream\WritableStreamInterface
-     */
-    private $stream;
-
-    /**
-     * Constructor
-     *
-     * @param \React\Stream\WritableStreamInterface $stream A WritableStreamInterface instance.
-     */
-    public function __construct(WritableStreamInterface $stream)
-    {
-        $this->stream = $stream;
-
-        $this->stream->on('data', array($this, 'handleData'));
-        $this->stream->on('end', array($this, 'handleEnd'));
-        $this->stream->on('error', array($this, 'handleError'));
-    }
 
     /**
      * {@inheritDoc}
@@ -83,7 +63,10 @@ class Response extends ReadableStream implements ResponseInterface
         ));
     }
 
-    public function handleData($data)
+    /**
+     * {@inheritDoc}
+     */
+    public function write($data)
     {
         $this->buffer .= $data;
 
@@ -102,25 +85,10 @@ class Response extends ReadableStream implements ResponseInterface
 
             $this->buffer = null;
 
-            $this->stream->removeListener('data', array($this, 'handleData'));
-            $this->stream->removeListener('end', array($this, 'handleEnd'));
-            $this->stream->removeListener('error', array($this, 'handleError'));
-
-            $this->statusCode = $matches[1];
-            $this->message = $matches[2];
+            list(, $this->statusCode, $this->message) = $matches;
 
             $this->close();
         }
-    }
-
-    public function handleEnd()
-    {
-        var_dump(__FUNCTION__);
-    }
-
-    public function handleError()
-    {
-        var_dump(__FUNCTION__);
     }
 
     public function __toString()

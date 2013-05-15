@@ -2,15 +2,14 @@
 
 namespace React\Nntp\Response;
 
-use React\Stream\ReadableStream;
-use React\Stream\WritableStreamInterface;
+use React\Stream\WritableStream;
 
 /**
  * MultilineResponse
  *
  * @author Robin van der Vleuten <robinvdvleuten@gmail.com>
  */
-class MultilineResponse extends ReadableStream implements MultilineResponseInterface
+class MultilineResponse extends WritableStream implements MultilineResponseInterface
 {
     private $buffer;
     private $lines = array();
@@ -21,16 +20,10 @@ class MultilineResponse extends ReadableStream implements MultilineResponseInter
      * Constructor
      *
      * @param \React\Nntp\Response\ResponseInterface $response A Response instance.
-     * @param \React\Stream\WritableStreamInterface  $stream   A WritableStreamInterface instance.
      */
-    public function __construct(ResponseInterface $response, WritableStreamInterface $stream)
+    public function __construct(ResponseInterface $response)
     {
         $this->response = $response;
-        $this->stream = $stream;
-
-        $this->stream->on('data', array($this, 'handleData'));
-        $this->stream->on('end', array($this, 'handleEnd'));
-        $this->stream->on('error', array($this, 'handleError'));
     }
 
     /**
@@ -65,7 +58,7 @@ class MultilineResponse extends ReadableStream implements MultilineResponseInter
         return true;
     }
 
-    public function handleData($data)
+    public function write($data)
     {
         $this->buffer .= $data;
 
@@ -82,21 +75,7 @@ class MultilineResponse extends ReadableStream implements MultilineResponseInter
 
             $this->buffer = null;
 
-            $this->stream->removeListener('data', array($this, 'handleData'));
-            $this->stream->removeListener('end', array($this, 'handleEnd'));
-            $this->stream->removeListener('error', array($this, 'handleError'));
-
             $this->close();
         }
-    }
-
-    public function handleEnd()
-    {
-        var_dump(__FUNCTION__);
-    }
-
-    public function handleError()
-    {
-        var_dump(__FUNCTION__);
     }
 }
