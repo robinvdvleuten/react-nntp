@@ -122,4 +122,9 @@ class Response extends ReadableStream implements ResponseInterface
     {
         var_dump(__FUNCTION__);
     }
+
+    public function __toString()
+    {
+        return $this->getStatusCode().' '.$this->getMessage();
+    }
 }
