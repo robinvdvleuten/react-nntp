@@ -67,4 +67,16 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 
         $this->assertFalse($response->isMultilineResponse());
     }
+
+    /**
+     * @test
+     */
+    public function responseCanBeTypeCastedToString()
+    {
+        $response = new Response();
+
+        $response->write("200 Successful response\r\n");
+
+        $this->assertEquals("200 Successful response", (string) $response);
+    }
 }
