@@ -7,15 +7,10 @@ use React\Nntp\Response\MultilineResponse;
 class MultilineResponseTest extends \PHPUnit_Framework_TestCase
 {
     private $response;
-    private $stream;
 
     public function setUp()
     {
         $this->response = $this->getMock('React\Nntp\Response\ResponseInterface');
-
-        $this->stream = $this->getMockbuilder('React\Stream\Stream')
-            ->disableOriginalConstructor()
-            ->getMock();
     }
 
     /**
@@ -33,7 +28,7 @@ class MultilineResponseTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue('Successful response'))
         ;
 
-        $multilineResponse = new MultilineResponse($this->response, $this->stream);
+        $multilineResponse = new MultilineResponse($this->response);
 
         $this->assertInstanceOf('React\Nntp\Response\MultilineResponseInterface', $multilineResponse);
         $this->assertEquals(200, $multilineResponse->getStatusCode());
@@ -52,9 +47,9 @@ class MultilineResponseTest extends \PHPUnit_Framework_TestCase
      */
     public function responseIsFinishedWhenReceivedDot()
     {
-        $multilineResponse = new MultilineResponse($this->response, $this->stream);
+        $multilineResponse = new MultilineResponse($this->response);
 
-        $multilineResponse->handleData(".\r\n");
+        $multilineResponse->write(".\r\n");
 
         $lines = $multilineResponse->getLines();
 
@@ -67,11 +62,11 @@ class MultilineResponseTest extends \PHPUnit_Framework_TestCase
      */
     public function dataShouldBeExplodedToLines()
     {
-        $multilineResponse = new MultilineResponse($this->response, $this->stream);
+        $multilineResponse = new MultilineResponse($this->response);
 
-        $multilineResponse->handleData("Appended line\r\n");
-        $multilineResponse->handleData("Appended line\r\n");
-        $multilineResponse->handleData(".\r\n");
+        $multilineResponse->write("Appended line\r\n");
+        $multilineResponse->write("Appended line\r\n");
+        $multilineResponse->write(".\r\n");
 
         $lines = $multilineResponse->getLines();
 

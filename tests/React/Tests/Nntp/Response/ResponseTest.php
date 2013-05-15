@@ -6,23 +6,14 @@ use React\Nntp\Response\Response;
 
 class ResponseTest extends \PHPUnit_Framework_TestCase
 {
-    private $stream;
-
-    public function setUp()
-    {
-        $this->stream = $this->getMockbuilder('React\Stream\Stream')
-            ->disableOriginalConstructor()
-            ->getMock();
-    }
-
     /**
      * @test
      */
     public function responseShouldBeCreatedFromString()
     {
-        $response = new Response($this->stream);
+        $response = new Response();
 
-        $response->handleData("200 Successful response\r\n");
+        $response->write("200 Successful response\r\n");
 
         $this->assertInstanceOf('React\\Nntp\\Response\\ResponseInterface', $response);
         $this->assertEquals(200, $response->getStatusCode());
@@ -36,9 +27,9 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     {
         $this->setExpectedException('InvalidArgumentException');
 
-        $response = new Response($this->stream);
+        $response = new Response();
 
-        $response->handleData("A very very invalid string\r\n");
+        $response->write("A very very invalid string\r\n");
     }
 
     /**
@@ -48,9 +39,9 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     {
         $this->setExpectedException('RuntimeException');
 
-        $response = new Response($this->stream);
+        $response = new Response();
 
-        $response->handleData("000 Unknown status code\r\n");
+        $response->write("000 Unknown status code\r\n");
     }
 
     /**
@@ -58,9 +49,9 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
      */
     public function indicatingMultilineWhenSpecificStatusCode()
     {
-        $response = new Response($this->stream);
+        $response = new Response();
 
-        $response->handleData("222 Multiline response\r\n");
+        $response->write("222 Multiline response\r\n");
 
         $this->assertTrue($response->isMultilineResponse());
     }
@@ -70,9 +61,9 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
      */
     public function indicatingNotMultilineWhenSpecificStatusCode()
     {
-        $response = new Response($this->stream);
+        $response = new Response();
 
-        $response->handleData("200 Not multiline response\r\n");
+        $response->write("200 Not multiline response\r\n");
 
         $this->assertFalse($response->isMultilineResponse());
     }
