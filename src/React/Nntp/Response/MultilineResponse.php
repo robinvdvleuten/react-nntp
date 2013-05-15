@@ -2,9 +2,7 @@
 
 namespace React\Nntp\Response;
 
-use Evenement\EventEmitter;
 use React\Stream\ReadableStream;
-use React\Stream\Util;
 use React\Stream\WritableStreamInterface;
 
 /**
