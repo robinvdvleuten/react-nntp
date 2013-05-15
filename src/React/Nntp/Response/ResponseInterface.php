@@ -9,9 +9,12 @@ namespace React\Nntp\Response;
  */
 interface ResponseInterface
 {
+    const SERVICE_AVAILABLE_POSTING_ALLOWED    = 200;
+    const SERVICE_AVAILABLE_POSTING_PROHIBITED = 201;
+    const SERVICE_TEMPORARILY_UNAVAILABLE      = 400;
+    const SERVICE_PERMANENTLY_UNAVAILABLE      = 502;
+
     // Connection constants
-    const READY_POSTING_ALLOWED         = 200;
-    const READY_POSTING_PROHIBITED      = 201;
     const SLAVE_RECOGNIZED              = 202;
 
     // Common error constants

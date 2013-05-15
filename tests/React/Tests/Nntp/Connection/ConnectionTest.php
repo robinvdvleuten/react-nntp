@@ -57,6 +57,39 @@ class ConnectionTest extends TestCase
     /**
      * @test
      */
+    public function connectionToNntpServerShouldThrowExceptionWhenUnsuccessfull()
+    {
+        $receivedException = null;
+
+        $loop = new StreamSelectLoop();
+        $dns = $this->createResolverMock();
+
+        $server = new Server($loop);
+        $server->on('connection', $this->expectCallableOnce());
+        $server->on('connection', function (ConnectionInterface $connection) use ($server, $loop) {
+            $connection->write("502 NNTP server is permanently unavailable\r\n");
+        });
+        $server->listen(9999);
+
+        $connection = Connection::factory($loop, $dns);
+        $connection->connect('127.0.0.1', 9999)
+            ->then($this->expectCallableNever(), function (\Exception $e) use (&$receivedException, $loop) {
+                $receivedException = $e;
+                $loop->stop();
+            })
+        ;
+
+        $loop->run();
+
+        $this->assertInstanceOf('React\\Nntp\\Exception\\BadResponseException', $receivedException);
+        $this->assertEquals(502, $receivedException->getResponse()->getStatusCode());
+        $this->assertEquals("NNTP server is permanently unavailable", $receivedException->getResponse()->getMessage());
+    }
+
+
+    /**
+     * @test
+     */
     public function connectionToUnknownNntpServerShouldFail()
     {
         $loop = new StreamSelectLoop();

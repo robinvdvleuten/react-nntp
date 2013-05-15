@@ -5,7 +5,9 @@ namespace React\Nntp\Connection;
 use React\EventLoop\LoopInterface;
 use React\Nntp\Command\Command;
 use React\Nntp\Command\CommandInterface;
+use React\Nntp\Exception\BadResponseException;
 use React\Nntp\Response\Response;
+use React\Nntp\Response\ResponseInterface;
 use React\Promise\Deferred;
 use React\SocketClient\Connector;
 use React\SocketClient\ConnectorInterface;
@@ -113,7 +115,10 @@ class Connection
         $deferred = new Deferred();
 
         $response->on('end', function () use ($response, $deferred) {
-            // @todo Check if it is a 200 response.
+            if (!in_array($response->getStatusCode(), array(ResponseInterface::SERVICE_AVAILABLE_POSTING_ALLOWED, ResponseInterface::SERVICE_AVAILABLE_POSTING_PROHIBITED))) {
+                return $deferred->reject(BadResponseException::factory($response));
+            }
+
             $deferred->resolve($response);
         });
 
