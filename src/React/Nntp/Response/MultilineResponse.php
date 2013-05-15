@@ -3,7 +3,7 @@
 namespace React\Nntp\Response;
 
 use Evenement\EventEmitter;
-use React\Stream\ReadableStreamInterface;
+use React\Stream\ReadableStream;
 use React\Stream\Util;
 use React\Stream\WritableStreamInterface;
 
@@ -12,11 +12,10 @@ use React\Stream\WritableStreamInterface;
  *
  * @author Robin van der Vleuten <robinvdvleuten@gmail.com>
  */
-class MultilineResponse extends EventEmitter implements MultilineResponseInterface, ReadableStreamInterface
+class MultilineResponse extends ReadableStream implements MultilineResponseInterface
 {
     private $buffer;
-    private $lines = [];
-    private $readable = true;
+    private $lines = array();
     private $response;
     private $stream;
 
@@ -25,16 +24,15 @@ class MultilineResponse extends EventEmitter implements MultilineResponseInterfa
      *
      * @param \React\Nntp\Response\ResponseInterface $response A Response instance.
      * @param \React\Stream\WritableStreamInterface  $stream   A WritableStreamInterface instance.
-     * @param \React\EventLoop\LoopInterface         $loop     A LoopInterface instance.
      */
     public function __construct(ResponseInterface $response, WritableStreamInterface $stream)
     {
         $this->response = $response;
         $this->stream = $stream;
 
-        $this->stream->on('data', [$this, 'handleData']);
-        $this->stream->on('end', [$this, 'handleEnd']);
-        $this->stream->on('error', [$this, 'handleError']);
+        $this->stream->on('data', array($this, 'handleData'));
+        $this->stream->on('end', array($this, 'handleEnd'));
+        $this->stream->on('error', array($this, 'handleError'));
     }
 
     /**
@@ -69,41 +67,6 @@ class MultilineResponse extends EventEmitter implements MultilineResponseInterfa
         return true;
     }
 
-    public function isReadable()
-    {
-        return $this->readable;
-    }
-
-    public function pause()
-    {
-
-    }
-
-    public function resume()
-    {
-
-    }
-
-    public function pipe(WritableStreamInterface $dest, array $options = array())
-    {
-        Util::pipe($this, $dest, $options);
-
-        return $dest;
-    }
-
-    public function close(\Exception $error = null)
-    {
-        if (!$this->readable) {
-            return;
-        }
-
-        $this->readable = false;
-
-        $this->emit('end', [$error, $this]);
-
-        $this->removeAllListeners();
-    }
-
     public function handleData($data)
     {
         $this->buffer .= $data;
@@ -121,9 +84,9 @@ class MultilineResponse extends EventEmitter implements MultilineResponseInterfa
 
             $this->buffer = null;
 
-            $this->stream->removeListener('data', [$this, 'handleData']);
-            $this->stream->removeListener('end', [$this, 'handleEnd']);
-            $this->stream->removeListener('error', [$this, 'handleError']);
+            $this->stream->removeListener('data', array($this, 'handleData'));
+            $this->stream->removeListener('end', array($this, 'handleEnd'));
+            $this->stream->removeListener('error', array($this, 'handleError'));
 
             $this->close();
         }

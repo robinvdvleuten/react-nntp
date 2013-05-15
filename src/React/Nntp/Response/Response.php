@@ -3,7 +3,7 @@
 namespace React\Nntp\Response;
 
 use Evenement\EventEmitter;
-use React\Stream\ReadableStreamInterface;
+use React\Stream\ReadableStream;
 use React\Stream\Util;
 use React\Stream\WritableStreamInterface;
 
@@ -12,7 +12,7 @@ use React\Stream\WritableStreamInterface;
  *
  * @author Robin van der Vleuten <robinvdvleuten@gmail.com>
  */
-class Response extends EventEmitter implements ResponseInterface, ReadableStreamInterface
+class Response extends ReadableStream implements ResponseInterface
 {
     /**
      * @var string
@@ -23,11 +23,6 @@ class Response extends EventEmitter implements ResponseInterface, ReadableStream
      * @var string
      */
     private $message;
-
-    /**
-     * @var boolean
-     */
-    private $readable = true;
 
     /**
      * @var integer
@@ -48,9 +43,9 @@ class Response extends EventEmitter implements ResponseInterface, ReadableStream
     {
         $this->stream = $stream;
 
-        $this->stream->on('data', [$this, 'handleData']);
-        $this->stream->on('end', [$this, 'handleEnd']);
-        $this->stream->on('error', [$this, 'handleError']);
+        $this->stream->on('data', array($this, 'handleData'));
+        $this->stream->on('end', array($this, 'handleEnd'));
+        $this->stream->on('error', array($this, 'handleError'));
     }
 
     /**
@@ -74,58 +69,20 @@ class Response extends EventEmitter implements ResponseInterface, ReadableStream
      */
     public function isMultilineResponse()
     {
-        return in_array(
-            $this->getStatusCode(),
-            [
-                100, // HELP
-                101, // CAPABILITIES
-                211, // LISTGROUP (also not multi-line with GROUP)
-                215, // LIST
-                220, // ARTICLE
-                221, // HEAD, XHDR
-                222, // BODY
-                224, // OVER, XOVER
-                225, // HDR
-                230, // NEWNEWS
-                231, // NEWGROUPS
-                282, // XGTITLE
-            ]
-        );
-    }
-
-    public function isReadable()
-    {
-        return $this->readable;
-    }
-
-    public function pause()
-    {
-
-    }
-
-    public function resume()
-    {
-
-    }
-
-    public function pipe(WritableStreamInterface $dest, array $options = array())
-    {
-        Util::pipe($this, $dest, $options);
-
-        return $dest;
-    }
-
-    public function close(\Exception $error = null)
-    {
-        if (!$this->readable) {
-            return;
-        }
-
-        $this->readable = false;
-
-        $this->emit('end', [$error, $this]);
-
-        $this->removeAllListeners();
+        return in_array($this->getStatusCode(), array(
+            100, // HELP
+            101, // CAPABILITIES
+            211, // LISTGROUP (also not multi-line with GROUP)
+            215, // LIST
+            220, // ARTICLE
+            221, // HEAD, XHDR
+            222, // BODY
+            224, // OVER, XOVER
+            225, // HDR
+            230, // NEWNEWS
+            231, // NEWGROUPS
+            282, // XGTITLE
+        ));
     }
 
     public function handleData($data)
@@ -147,9 +104,9 @@ class Response extends EventEmitter implements ResponseInterface, ReadableStream
 
             $this->buffer = null;
 
-            $this->stream->removeListener('data', [$this, 'handleData']);
-            $this->stream->removeListener('end', [$this, 'handleEnd']);
-            $this->stream->removeListener('error', [$this, 'handleError']);
+            $this->stream->removeListener('data', array($this, 'handleData'));
+            $this->stream->removeListener('end', array($this, 'handleEnd'));
+            $this->stream->removeListener('error', array($this, 'handleError'));
 
             $this->statusCode = $matches[1];
             $this->message = $matches[2];
