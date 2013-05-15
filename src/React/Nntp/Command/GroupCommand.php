@@ -2,7 +2,6 @@
 
 namespace React\Nntp\Command;
 
-use React\EventLoop\LoopInterface;
 use React\Nntp\Group;
 use React\Nntp\Response\ResponseInterface;
 use React\Stream\Stream;
@@ -15,11 +14,11 @@ class GroupCommand extends Command implements CommandInterface
     /**
      * Constructor.
      */
-    public function __construct(Stream $stream, LoopInterface $loop, $name)
+    public function __construct(Stream $stream, $name)
     {
         $this->name = $name;
 
-        parent::__construct($stream, $loop);
+        parent::__construct($stream);
     }
 
     /**

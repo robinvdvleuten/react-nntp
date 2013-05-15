@@ -12,7 +12,7 @@ class ListCommandTest extends \PHPUnit_Framework_TestCase
      */
     public function testCommandExpectsMultilineResponse()
     {
-        $command = new ListCommand($this->createStreamMock(), $this->createLoopMock());
+        $command = new ListCommand($this->createStreamMock());
 
         $this->assertTrue($command->expectsMultilineResponse());
     }
@@ -22,14 +22,14 @@ class ListCommandTest extends \PHPUnit_Framework_TestCase
      */
     public function testCommandShouldNotReturnInitialResult()
     {
-        $command = new ListCommand($this->createStreamMock(), $this->createLoopMock());
+        $command = new ListCommand($this->createStreamMock());
 
         $this->assertNull($command->getResult());
     }
 
     public function testCommandShouldImplementAllResponseCodes()
     {
-        $command = new ListCommand($this->createStreamMock(), $this->createLoopMock());
+        $command = new ListCommand($this->createStreamMock());
 
         $handlers = $command->getResponseHandlers();
 
@@ -43,7 +43,7 @@ class ListCommandTest extends \PHPUnit_Framework_TestCase
      */
     public function testResponseMessageShouldBeConvertedToObject()
     {
-        $command = new ListCommand($this->createStreamMock(), $this->createLoopMock());
+        $command = new ListCommand($this->createStreamMock());
 
         $response = $this->getMock('React\Nntp\Response\MultilineResponseInterface');
 
@@ -69,13 +69,6 @@ class ListCommandTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(3000234, $group->getFirst());
         $this->assertEquals(3002322, $group->getLast());
         $this->assertTrue($group->getActive());
-    }
-
-    private function createLoopMock()
-    {
-        return $this->getMockBuilder('React\EventLoop\StreamSelectLoop')
-                    ->disableOriginalConstructor()
-                    ->getMock();
     }
 
     private function createStreamMock()

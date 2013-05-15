@@ -11,7 +11,7 @@ class AuthInfoCommandTest extends \PHPUnit_Framework_TestCase
      */
     public function commandExpectsMultilineResponse()
     {
-        $command = new AuthInfoCommand($this->createStreamMock(), $this->createLoopMock(), 'type', 'value');
+        $command = new AuthInfoCommand($this->createStreamMock(), 'type', 'value');
 
         $this->assertFalse($command->expectsMultilineResponse());
     }
@@ -21,16 +21,9 @@ class AuthInfoCommandTest extends \PHPUnit_Framework_TestCase
      */
     public function commandShouldNotReturnInitialResult()
     {
-        $command = new AuthInfoCommand($this->createStreamMock(), $this->createLoopMock(), 'type', 'value');
+        $command = new AuthInfoCommand($this->createStreamMock(), 'type', 'value');
 
         $this->assertNull($command->getResult());
-    }
-
-    private function createLoopMock()
-    {
-        return $this->getMockBuilder('React\EventLoop\StreamSelectLoop')
-                    ->disableOriginalConstructor()
-                    ->getMock();
     }
 
     private function createStreamMock()

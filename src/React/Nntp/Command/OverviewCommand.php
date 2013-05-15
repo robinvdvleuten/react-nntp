@@ -2,7 +2,6 @@
 
 namespace React\Nntp\Command;
 
-use React\EventLoop\LoopInterface;
 use React\Nntp\Response\MultilineResponseInterface;
 use React\Nntp\Response\ResponseInterface;
 use React\Stream\Stream;
@@ -13,14 +12,14 @@ class OverviewCommand extends Command implements CommandInterface
     protected $format;
     protected $range;
 
-    public function __construct(Stream $stream, LoopInterface $loop, $range, array $format)
+    public function __construct(Stream $stream, $range, array $format)
     {
         $this->range = $range;
 
         // Prepend 'number' field
         $this->format = array_merge(['number' => false], $format);
 
-        parent::__construct($stream, $loop);
+        parent::__construct($stream);
     }
 
     /**

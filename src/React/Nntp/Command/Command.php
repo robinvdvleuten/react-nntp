@@ -3,7 +3,6 @@
 namespace React\Nntp\Command;
 
 use Evenement\EventEmitter;
-use React\EventLoop\LoopInterface;
 use React\Nntp\Exception\BadResponseException;
 use React\Nntp\Response\MultilineResponse;
 use React\Nntp\Response\Response;
@@ -16,7 +15,6 @@ use React\Stream\WritableStreamInterface;
 abstract class Command extends EventEmitter implements CommandInterface, ReadableStreamInterface, WritableStreamInterface
 {
     private $buffer;
-    private $loop;
     private $readable = true;
     private $response;
     private $stream;
@@ -25,12 +23,11 @@ abstract class Command extends EventEmitter implements CommandInterface, Readabl
     /**
      * Constructor.
      */
-    public function __construct(Stream $stream, LoopInterface $loop)
+    public function __construct(Stream $stream)
     {
         $this->stream = $stream;
-        $this->loop = $loop;
 
-        $this->response = new Response($this, $this->loop);
+        $this->response = new Response($this);
 
         $this->stream->on('drain', [$this, 'handleDrain']);
         $this->stream->on('data', [$this, 'handleData']);
@@ -147,7 +144,7 @@ abstract class Command extends EventEmitter implements CommandInterface, Readabl
         $this->stream->pause();
 
         if (false !== strpos($this->buffer, "\r\n")) {
-            $response = new Response($this, $this->loop);
+            $response = new Response($this);
 
             $buffer = $this->buffer;
             $this->buffer = null;
@@ -161,7 +158,7 @@ abstract class Command extends EventEmitter implements CommandInterface, Readabl
 
             $response->on('end', function () use ($response) {
                 if ($response->isMultilineResponse() && $this->expectsMultilineResponse()) {
-                    $multilineResponse = new MultilineResponse($response, $this->stream, $this->loop);
+                    $multilineResponse = new MultilineResponse($response, $this->stream);
                     $this->setResponse($multilineResponse);
 
                     $multilineResponse->on('end', function () use ($multilineResponse) {

@@ -2,7 +2,6 @@
 
 namespace React\Nntp\Command;
 
-use React\EventLoop\LoopInterface;
 use React\Nntp\Response\ResponseInterface;
 use React\Stream\Stream;
 
@@ -11,12 +10,12 @@ class AuthInfoCommand extends Command implements CommandInterface
     protected $type;
     protected $value;
 
-    public function __construct(Stream $stream, LoopInterface $loop, $type, $value)
+    public function __construct(Stream $stream, $type, $value)
     {
         $this->type = $type;
         $this->value = $value;
 
-        parent::__construct($stream, $loop);
+        parent::__construct($stream);
     }
 
     /**

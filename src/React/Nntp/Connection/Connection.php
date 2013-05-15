@@ -18,16 +18,14 @@ use RuntimeException;
 class Connection
 {
     private $connector;
-    private $loop;
     private $secureConnector;
     private $stream;
 
     /**
      * Constructor.
      */
-    public function __construct(LoopInterface $loop, ConnectorInterface $connector, ConnectorInterface $secureConnector)
+    public function __construct(ConnectorInterface $connector, ConnectorInterface $secureConnector)
     {
-        $this->loop = $loop;
         $this->connector = $connector;
         $this->secureConnector = $secureConnector;
     }
@@ -37,7 +35,7 @@ class Connection
         $connector = new Connector($loop, $resolver);
         $secureConnector = new SecureConnector($connector, $loop);
 
-        return new static($loop, $connector, $secureConnector);
+        return new static($connector, $secureConnector);
     }
 
     /**
@@ -77,10 +75,7 @@ class Connection
             ));
         }
 
-        $arguments = array_merge([
-            $this->stream,
-            $this->loop,
-        ], $arguments);
+        $arguments = array_merge(array($this->stream), $arguments);
 
         $reflect  = new \ReflectionClass($class);
         $command = $reflect->newInstanceArgs($arguments);
@@ -111,7 +106,7 @@ class Connection
         // @todo make this configurable.
         $this->stream->bufferSize = 1024;
 
-        $response = new Response($this->stream, $this->loop);
+        $response = new Response($this->stream);
         $deferred = new Deferred();
 
         $response->on('end', function () use ($response, $deferred) {

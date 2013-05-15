@@ -11,7 +11,7 @@ class GroupCommandTest extends \PHPUnit_Framework_TestCase
      */
     public function commandExpectsMultilineResponse()
     {
-        $command = new GroupCommand($this->createStreamMock(), $this->createLoopMock(), 'test');
+        $command = new GroupCommand($this->createStreamMock(), 'test');
 
         $this->assertFalse($command->expectsMultilineResponse());
     }
@@ -21,7 +21,7 @@ class GroupCommandTest extends \PHPUnit_Framework_TestCase
      */
     public function commandShouldNotReturnInitialResult()
     {
-        $command = new GroupCommand($this->createStreamMock(), $this->createLoopMock(), 'test');
+        $command = new GroupCommand($this->createStreamMock(), 'test');
 
         $this->assertNull($command->getResult());
     }
@@ -31,7 +31,7 @@ class GroupCommandTest extends \PHPUnit_Framework_TestCase
      */
     public function responseMessageShouldBeConvertedToObject()
     {
-        $command = new GroupCommand($this->createStreamMock(), $this->createLoopMock(), 'test');
+        $command = new GroupCommand($this->createStreamMock(), 'test');
 
         $response = $this->getMock('React\Nntp\Response\ResponseInterface');
         $response->expects($this->once())
@@ -47,13 +47,6 @@ class GroupCommandTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(10, $group->getCount());
         $this->assertEquals(5, $group->getFirst());
         $this->assertEquals(15, $group->getLast());
-    }
-
-    private function createLoopMock()
-    {
-        return $this->getMockBuilder('React\EventLoop\StreamSelectLoop')
-                    ->disableOriginalConstructor()
-                    ->getMock();
     }
 
     private function createStreamMock()

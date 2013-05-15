@@ -11,7 +11,7 @@ class OverviewFormatCommandTest extends \PHPUnit_Framework_TestCase
      */
     public function commandExpectsMultilineResponse()
     {
-        $command = new OverviewFormatCommand($this->createStreamMock(), $this->createLoopMock());
+        $command = new OverviewFormatCommand($this->createStreamMock());
 
         $this->assertTrue($command->expectsMultilineResponse());
     }
@@ -21,16 +21,9 @@ class OverviewFormatCommandTest extends \PHPUnit_Framework_TestCase
      */
     public function commandShouldNotReturnInitialResult()
     {
-        $command = new OverviewFormatCommand($this->createStreamMock(), $this->createLoopMock());
+        $command = new OverviewFormatCommand($this->createStreamMock());
 
         $this->assertNull($command->getResult());
-    }
-
-    private function createLoopMock()
-    {
-        return $this->getMockBuilder('React\EventLoop\StreamSelectLoop')
-                    ->disableOriginalConstructor()
-                    ->getMock();
     }
 
     private function createStreamMock()
