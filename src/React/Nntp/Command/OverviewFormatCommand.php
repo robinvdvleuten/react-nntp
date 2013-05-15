@@ -42,7 +42,7 @@ class OverviewFormatCommand extends Command implements CommandInterface
             ResponseInterface::GROUPS_FOLLOW => [
                 $this, 'handleGroupsFollowResponse'
             ],
-            ResponseInterface::NO_SUCH_GROUP => [
+            ResponseInterface::NO_SUCH_NEWSGROUP => [
                 $this, 'handleErrorResponse'
             ]
         ];

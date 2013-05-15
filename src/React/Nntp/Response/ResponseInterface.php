@@ -9,10 +9,15 @@ namespace React\Nntp\Response;
  */
 interface ResponseInterface
 {
+    // Connection response codes
     const SERVICE_AVAILABLE_POSTING_ALLOWED    = 200;
     const SERVICE_AVAILABLE_POSTING_PROHIBITED = 201;
     const SERVICE_TEMPORARILY_UNAVAILABLE      = 400;
     const SERVICE_PERMANENTLY_UNAVAILABLE      = 502;
+
+    // Group command response codes
+    const GROUP_SUCCESSFULLY_SELECTED          = 211;
+    const NO_SUCH_NEWSGROUP                    = 411;
 
     // Connection constants
     const SLAVE_RECOGNIZED              = 202;
@@ -22,10 +27,6 @@ interface ResponseInterface
     const SYNTAX_ERROR                  = 501;
     const NOT_PERMITTED                 = 502;
     const NOT_SUPPORTED                 = 503;
-
-    // Group selection constants
-    const GROUP_SELECTED                = 211;
-    const NO_SUCH_GROUP                 = 411;
 
     // Article retrieval constants
     const ARTICLE_FOLLOWS               = 220;

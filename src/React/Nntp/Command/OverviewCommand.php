@@ -55,7 +55,7 @@ class OverviewCommand extends Command implements CommandInterface
             ResponseInterface::OVERVIEW_FOLLOWS => [
                 $this, 'handleOverviewFollowsResponse'
             ],
-            ResponseInterface::NO_SUCH_GROUP => [
+            ResponseInterface::NO_SUCH_NEWSGROUP => [
                 $this, 'handleErrorResponse'
             ],
             ResponseInterface::NO_ARTICLE_SELECTED => [
