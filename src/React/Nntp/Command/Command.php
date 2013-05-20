@@ -139,6 +139,7 @@ abstract class Command extends EventEmitter implements CommandInterface, Readabl
 
     public function handleData($data)
     {
+        var_dump($data);
         $this->buffer .= $data;
 
         if (false !== strpos($this->buffer, "\r\n")) {
@@ -163,8 +164,6 @@ abstract class Command extends EventEmitter implements CommandInterface, Readabl
                         $this->emit('response', [$multilineResponse]);
                         $this->close();
                     });
-
-                    $this->stream->resume();
                 } else {
                     $this->emit('response', [$response]);
                     $this->close();

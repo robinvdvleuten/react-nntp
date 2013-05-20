@@ -15,6 +15,9 @@ interface ResponseInterface
     const SERVICE_TEMPORARILY_UNAVAILABLE      = 400;
     const SERVICE_PERMANENTLY_UNAVAILABLE      = 502;
 
+    // Quit command response codes
+    const CONNECTION_CLOSING                   = 205;
+
     // Group command response codes
     const GROUP_SUCCESSFULLY_SELECTED          = 211;
     const NO_SUCH_NEWSGROUP                    = 411;
