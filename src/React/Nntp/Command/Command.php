@@ -142,15 +142,19 @@ abstract class Command extends EventEmitter implements CommandInterface, Readabl
         $this->buffer .= $data;
 
         if (false !== strpos($this->buffer, "\r\n")) {
+            // Check if we already received a multiline response.
+            $buffer = explode("\r\n", $this->buffer);
+            // Remove the last empty value.
+            $buffer = array_filter($buffer);
+
+            $this->buffer = null;
+
             $response = new Response();
             $this->pipe($response);
 
-            $buffer = $this->buffer;
-            $this->buffer = null;
-
             $this->setResponse($response);
 
-            $response->on('end', function () use ($response) {
+            $response->on('end', function () use ($response, &$buffer) {
                 $this->stream->removeAllListeners();
 
                 if ($response->isMultilineResponse() && $this->expectsMultilineResponse()) {
@@ -160,16 +164,20 @@ abstract class Command extends EventEmitter implements CommandInterface, Readabl
                     $this->setResponse($multilineResponse);
 
                     $multilineResponse->on('end', function () use ($multilineResponse) {
-                        $this->emit('response', [$multilineResponse]);
+                        $this->emit('response', array($multilineResponse));
                         $this->close();
                     });
+
+                    if (!empty($buffer)) {
+                        $this->stream->emit('data', array(implode("\r\n", $buffer)));
+                    }
                 } else {
-                    $this->emit('response', [$response]);
+                    $this->emit('response', array($response));
                     $this->close();
                 }
             });
 
-            $this->emit('data', [$buffer]);
+            $this->emit('data', array(array_shift($buffer)."\r\n"));
         }
     }
 

@@ -49,7 +49,7 @@ class MultilineResponseTest extends \PHPUnit_Framework_TestCase
     {
         $multilineResponse = new MultilineResponse($this->response);
 
-        $multilineResponse->write(".\r\n");
+        $multilineResponse->write(".");
 
         $lines = $multilineResponse->getLines();
 
@@ -66,7 +66,7 @@ class MultilineResponseTest extends \PHPUnit_Framework_TestCase
 
         $multilineResponse->write("Appended line\r\n");
         $multilineResponse->write("Appended line\r\n");
-        $multilineResponse->write(".\r\n");
+        $multilineResponse->write(".");
 
         $lines = $multilineResponse->getLines();
 

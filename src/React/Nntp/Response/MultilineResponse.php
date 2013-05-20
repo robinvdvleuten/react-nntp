@@ -58,7 +58,7 @@ class MultilineResponse extends Response implements MultilineResponseInterface
     {
         $this->buffer .= $data;
 
-        if (false !== (bool) preg_match("/\.(\r\n)?$/", $this->buffer)) {
+        if (false !== (bool) preg_match("/\r\n\.$/", $this->buffer)) {
             $this->lines = explode("\r\n", trim($this->buffer));
 
             if (end($this->lines) === ".") {
