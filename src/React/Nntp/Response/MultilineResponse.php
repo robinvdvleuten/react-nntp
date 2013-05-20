@@ -2,19 +2,15 @@
 
 namespace React\Nntp\Response;
 
-use React\Stream\WritableStream;
-
 /**
  * MultilineResponse
  *
  * @author Robin van der Vleuten <robinvdvleuten@gmail.com>
  */
-class MultilineResponse extends WritableStream implements MultilineResponseInterface
+class MultilineResponse extends Response implements MultilineResponseInterface
 {
-    private $buffer;
     private $lines = array();
     private $response;
-    private $stream;
 
     /**
      * Constructor
@@ -62,7 +58,7 @@ class MultilineResponse extends WritableStream implements MultilineResponseInter
     {
         $this->buffer .= $data;
 
-        if (false !== (bool) preg_match("/\.\r\n$/", $this->buffer)) {
+        if (false !== (bool) preg_match("/\.(\r\n)?$/", $this->buffer)) {
             $this->lines = explode("\r\n", trim($this->buffer));
 
             if (end($this->lines) === ".") {

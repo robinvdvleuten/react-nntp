@@ -14,17 +14,17 @@ class Response extends WritableStream implements ResponseInterface
     /**
      * @var string
      */
-    private $buffer;
+    protected $buffer;
 
     /**
      * @var string
      */
-    private $message;
+    protected $message;
 
     /**
      * @var integer
      */
-    private $statusCode;
+    protected $statusCode;
 
     /**
      * {@inheritDoc}
