@@ -139,7 +139,6 @@ abstract class Command extends EventEmitter implements CommandInterface, Readabl
 
     public function handleData($data)
     {
-        var_dump($data);
         $this->buffer .= $data;
 
         if (false !== strpos($this->buffer, "\r\n")) {
