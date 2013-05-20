@@ -73,7 +73,8 @@ class Connection
         $class = sprintf('React\\Nntp\\Command\\%sCommand', str_replace(" ", "", ucwords(strtr($command, "_-", "  "))));
         if (!class_exists($class) || !in_array('React\\Nntp\\Command\\CommandInterface', class_implements($class))) {
             throw new RuntimeException(sprintf(
-                "Given class %s is not a valid command.",
+                "Given command '%s' is mapped to a non-existing class (%s).",
+                $command,
                 $class
             ));
         }
