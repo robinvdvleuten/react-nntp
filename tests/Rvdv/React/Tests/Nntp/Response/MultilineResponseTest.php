@@ -2,33 +2,22 @@
 
 namespace Rvdv\React\Tests\Nntp\Response;
 
+use Phake;
 use Rvdv\React\Nntp\Response\MultilineResponse;
 
 class MultilineResponseTest extends \PHPUnit_Framework_TestCase
 {
-    private $response;
-
-    public function setUp()
-    {
-        $this->response = $this->getMock('Rvdv\React\Nntp\Response\ResponseInterface');
-    }
-
     /**
      * @test
      */
     public function multilineResponseShouldBeCreatedFromResponse()
     {
-        $this->response->expects($this->once())
-            ->method('getStatusCode')
-            ->will($this->returnValue(200))
-        ;
+        $response = Phake::mock('Rvdv\React\Nntp\Response\ResponseInterface');
 
-        $this->response->expects($this->once())
-            ->method('getMessage')
-            ->will($this->returnValue('Successful response'))
-        ;
+        Phake::when($response)->getStatusCode()->thenReturn(200);
+        Phake::when($response)->getMessage()->thenReturn('Successful response');
 
-        $multilineResponse = new MultilineResponse($this->response);
+        $multilineResponse = new MultilineResponse($response);
 
         $this->assertInstanceOf('Rvdv\React\Nntp\Response\MultilineResponseInterface', $multilineResponse);
         $this->assertEquals(200, $multilineResponse->getStatusCode());
@@ -40,6 +29,9 @@ class MultilineResponseTest extends \PHPUnit_Framework_TestCase
 
         $this->assertTrue(is_array($lines));
         $this->assertTrue(empty($lines));
+
+        Phake::verify($response, Phake::times(1))->getStatusCode();
+        Phake::verify($response, Phake::times(1))->getMessage();
     }
 
     /**
@@ -47,7 +39,9 @@ class MultilineResponseTest extends \PHPUnit_Framework_TestCase
      */
     public function responseIsFinishedWhenReceivedDot()
     {
-        $multilineResponse = new MultilineResponse($this->response);
+        $response = Phake::mock('Rvdv\React\Nntp\Response\ResponseInterface');
+
+        $multilineResponse = new MultilineResponse($response);
 
         $multilineResponse->write(".");
 
@@ -62,7 +56,9 @@ class MultilineResponseTest extends \PHPUnit_Framework_TestCase
      */
     public function dataShouldBeExplodedToLines()
     {
-        $multilineResponse = new MultilineResponse($this->response);
+        $response = Phake::mock('Rvdv\React\Nntp\Response\ResponseInterface');
+
+        $multilineResponse = new MultilineResponse($response);
 
         $multilineResponse->write("Appended line\r\n");
         $multilineResponse->write("Appended line\r\n");

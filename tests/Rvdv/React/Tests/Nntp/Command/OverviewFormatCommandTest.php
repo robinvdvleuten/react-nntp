@@ -2,6 +2,7 @@
 
 namespace Rvdv\React\Tests\Nntp\Command;
 
+use Phake;
 use Rvdv\React\Nntp\Command\OverviewFormatCommand;
 
 class OverviewFormatCommandTest extends \PHPUnit_Framework_TestCase
@@ -11,7 +12,9 @@ class OverviewFormatCommandTest extends \PHPUnit_Framework_TestCase
      */
     public function commandExpectsMultilineResponse()
     {
-        $command = new OverviewFormatCommand($this->createStreamMock());
+        $stream = Phake::mock('React\Stream\Stream');
+
+        $command = new OverviewFormatCommand($stream);
 
         $this->assertTrue($command->expectsMultilineResponse());
     }
@@ -21,15 +24,10 @@ class OverviewFormatCommandTest extends \PHPUnit_Framework_TestCase
      */
     public function commandShouldNotReturnInitialResult()
     {
-        $command = new OverviewFormatCommand($this->createStreamMock());
+        $stream = Phake::mock('React\Stream\Stream');
+
+        $command = new OverviewFormatCommand($stream);
 
         $this->assertNull($command->getResult());
-    }
-
-    private function createStreamMock()
-    {
-        return $this->getMockBuilder('React\Stream\Stream')
-                    ->disableOriginalConstructor()
-                    ->getMock();
     }
 }

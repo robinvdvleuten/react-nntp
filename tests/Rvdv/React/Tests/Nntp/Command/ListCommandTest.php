@@ -2,6 +2,7 @@
 
 namespace Rvdv\React\Tests\Nntp\Command;
 
+use Phake;
 use Rvdv\React\Nntp\Command\ListCommand;
 use Rvdv\React\Nntp\Response\ResponseInterface;
 
@@ -12,7 +13,9 @@ class ListCommandTest extends \PHPUnit_Framework_TestCase
      */
     public function testCommandExpectsMultilineResponse()
     {
-        $command = new ListCommand($this->createStreamMock());
+        $stream = Phake::mock('React\Stream\Stream');
+
+        $command = new ListCommand($stream);
 
         $this->assertTrue($command->expectsMultilineResponse());
     }
@@ -22,14 +25,18 @@ class ListCommandTest extends \PHPUnit_Framework_TestCase
      */
     public function testCommandShouldNotReturnInitialResult()
     {
-        $command = new ListCommand($this->createStreamMock());
+        $stream = Phake::mock('React\Stream\Stream');
+
+        $command = new ListCommand($stream);
 
         $this->assertNull($command->getResult());
     }
 
     public function testCommandShouldImplementAllResponseCodes()
     {
-        $command = new ListCommand($this->createStreamMock());
+        $stream = Phake::mock('React\Stream\Stream');
+
+        $command = new ListCommand($stream);
 
         $handlers = $command->getResponseHandlers();
 
@@ -43,22 +50,24 @@ class ListCommandTest extends \PHPUnit_Framework_TestCase
      */
     public function testResponseMessageShouldBeConvertedToObject()
     {
-        $command = new ListCommand($this->createStreamMock());
+        $stream = Phake::mock('React\Stream\Stream');
 
-        $response = $this->getMock('Rvdv\React\Nntp\Response\MultilineResponseInterface');
+        $command = new ListCommand($stream);
 
-        $response->expects($this->once())
-            ->method('getLines')
-            ->will($this->returnValue([
-                'misc.test 3002322 3000234 y',
-                'comp.risks 442001 441099 m',
-                'alt.rfc-writers.recovery 4 1 y',
-                'tx.natives.recovery 89 56 y',
-                'tx.natives.recovery.d 11 9 n',
-            ]));
+        $response = Phake::mock('Rvdv\React\Nntp\Response\MultilineResponseInterface');
+
+        Phake::when($response)->getLines()->thenReturn(array(
+            'misc.test 3002322 3000234 y',
+            'comp.risks 442001 441099 m',
+            'alt.rfc-writers.recovery 4 1 y',
+            'tx.natives.recovery 89 56 y',
+            'tx.natives.recovery.d 11 9 n',
+        ));
 
         $command->handleGroupsFollowResponse($response);
         $groups = $command->getResult();
+
+        Phake::verify($response, Phake::times(1))->getLines();
 
         $this->assertContainsOnly('Rvdv\React\Nntp\Group', $groups);
         $this->assertCount(5, $groups);
@@ -69,12 +78,5 @@ class ListCommandTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(3000234, $group->getFirst());
         $this->assertEquals(3002322, $group->getLast());
         $this->assertTrue($group->getActive());
-    }
-
-    private function createStreamMock()
-    {
-        return $this->getMockBuilder('React\Stream\Stream')
-                    ->disableOriginalConstructor()
-                    ->getMock();
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Rvdv\React\Tests\Nntp\Command;
 
+use Phake;
 use Rvdv\React\Nntp\Command\AuthInfoCommand;
 
 class AuthInfoCommandTest extends \PHPUnit_Framework_TestCase
@@ -11,7 +12,9 @@ class AuthInfoCommandTest extends \PHPUnit_Framework_TestCase
      */
     public function commandExpectsMultilineResponse()
     {
-        $command = new AuthInfoCommand($this->createStreamMock(), 'type', 'value');
+        $stream = Phake::mock('React\Stream\Stream');
+
+        $command = new AuthInfoCommand($stream, 'type', 'value');
 
         $this->assertFalse($command->expectsMultilineResponse());
     }
@@ -21,15 +24,10 @@ class AuthInfoCommandTest extends \PHPUnit_Framework_TestCase
      */
     public function commandShouldNotReturnInitialResult()
     {
-        $command = new AuthInfoCommand($this->createStreamMock(), 'type', 'value');
+        $stream = Phake::mock('React\Stream\Stream');
+
+        $command = new AuthInfoCommand($stream, 'type', 'value');
 
         $this->assertNull($command->getResult());
-    }
-
-    private function createStreamMock()
-    {
-        return $this->getMockBuilder('React\Stream\Stream')
-                    ->disableOriginalConstructor()
-                    ->getMock();
     }
 }

@@ -11,6 +11,7 @@
 
 namespace Rvdv\React\Tests\Nntp\Command;
 
+use Phake;
 use Rvdv\React\Nntp\Command\GroupCommand;
 use Rvdv\React\Nntp\Response\ResponseInterface;
 
@@ -23,30 +24,36 @@ class GroupCommandTest extends \PHPUnit_Framework_TestCase
 {
     public function testCommandExpectsMultilineResponse()
     {
-        $command = new GroupCommand($this->createStreamMock(), 'test');
+        $stream = Phake::mock('React\Stream\Stream');
+
+        $command = new GroupCommand($stream, 'test');
 
         $this->assertFalse($command->expectsMultilineResponse());
     }
 
     public function testCommandShouldNotReturnInitialResult()
     {
-        $command = new GroupCommand($this->createStreamMock(), 'test');
+        $stream = Phake::mock('React\Stream\Stream');
+
+        $command = new GroupCommand($stream, 'test');
 
         $this->assertNull($command->getResult());
     }
 
     public function testResponseMessageShouldBeConvertedToObject()
     {
-        $command = new GroupCommand($this->createStreamMock(), 'test');
+        $stream = Phake::mock('React\Stream\Stream');
 
-        $response = $this->getMock('Rvdv\React\Nntp\Response\ResponseInterface');
-        $response->expects($this->once())
-            ->method('getMessage')
-            ->will($this->returnValue('10 5 15 group_name'))
-        ;
+        $command = new GroupCommand($stream, 'test');
+
+        $response = Phake::mock('Rvdv\React\Nntp\Response\ResponseInterface');
+
+        Phake::when($response)->getMessage()->thenReturn('10 5 15 group_name');
 
         $command->handleGroupSelectedResponse($response);
         $group = $command->getResult();
+
+        Phake::verify($response, Phake::times(1))->getMessage();
 
         $this->assertInstanceOf('Rvdv\React\Nntp\Group', $group);
         $this->assertEquals('group_name', $group->getName());
@@ -57,50 +64,33 @@ class GroupCommandTest extends \PHPUnit_Framework_TestCase
 
     public function testCommandExecutesCorrectGroupName()
     {
-        $streamMock = $this->createStreamMock();
+        $stream = Phake::mock('React\Stream\Stream');
 
-        $streamMock->expects($this->once())
-            ->method('write')
-            ->with($this->equalTo("GROUP test\r\n"));
-
-        $command = new GroupCommand($streamMock, 'test');
+        $command = new GroupCommand($stream, 'test');
         $command->execute();
+
+        Phake::verify($stream, Phake::times(1))->write("GROUP test\r\n");
     }
 
     public function testResultIsHandledByCorrectHandler()
     {
-        $command = new GroupCommand($this->createStreamMock(), 'test');
+        $stream = Phake::mock('React\Stream\Stream');
 
-        $response = $this->getMock('Rvdv\React\Nntp\Response\ResponseInterface');
+        $command = new GroupCommand($stream, 'test');
 
-        $response->expects($this->any())
-            ->method('getStatusCode')
-            ->will($this->returnValue(ResponseInterface::GROUP_SUCCESSFULLY_SELECTED))
-        ;
+        $response = Phake::mock('Rvdv\React\Nntp\Response\ResponseInterface');
 
-        $response->expects($this->once())
-            ->method('getMessage')
-            ->will($this->returnValue('10 5 15 group_name'))
-        ;
+        Phake::when($response)->getStatusCode()->thenReturn(ResponseInterface::GROUP_SUCCESSFULLY_SELECTED);
+        Phake::when($response)->getMessage()->thenReturn('10 5 15 group_name');
 
         $command->handleResponse($response);
 
-        $response = $this->getMock('Rvdv\React\Nntp\Response\ResponseInterface');
+        $response = Phake::mock('Rvdv\React\Nntp\Response\ResponseInterface');
 
-        $response->expects($this->any())
-            ->method('getStatusCode')
-            ->will($this->returnValue(ResponseInterface::NO_SUCH_NEWSGROUP))
-        ;
+        Phake::when($response)->getStatusCode()->thenReturn(ResponseInterface::NO_SUCH_NEWSGROUP);
 
         $this->setExpectedException('Rvdv\React\Nntp\Exception\BadResponseException');
 
         $command->handleResponse($response);
-    }
-
-    private function createStreamMock()
-    {
-        return $this->getMockBuilder('React\Stream\Stream')
-                    ->disableOriginalConstructor()
-                    ->getMock();
     }
 }

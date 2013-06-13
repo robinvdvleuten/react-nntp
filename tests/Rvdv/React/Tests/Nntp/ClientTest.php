@@ -2,10 +2,11 @@
 
 namespace Rvdv\React\Tests\Nntp;
 
+use Phake;
 use React\EventLoop\StreamSelectLoop;
-use Rvdv\React\Nntp\Client;
 use React\Socket\ConnectionInterface;
 use React\Socket\Server;
+use Rvdv\React\Nntp\Client;
 
 class ClientTest extends TestCase
 {
@@ -14,8 +15,8 @@ class ClientTest extends TestCase
      */
     public function factoryShouldReturnAClient()
     {
-        $loop = $this->createLoopMock();
-        $dns = $this->createResolverMock();
+        $loop = Phake::mock('React\EventLoop\StreamSelectLoop');
+        $dns = Phake::mock('React\Dns\Resolver\Resolver');
 
         $client = Client::factory($loop, $dns);
         $this->assertInstanceOf('Rvdv\React\Nntp\Client', $client);
@@ -29,7 +30,7 @@ class ClientTest extends TestCase
         $receivedResponse = null;
 
         $loop = new StreamSelectLoop();
-        $dns = $this->createResolverMock();
+        $dns = Phake::mock('React\Dns\Resolver\Resolver');
 
         $server = new Server($loop);
         $server->on('connection', $this->expectCallableOnce());
@@ -59,7 +60,7 @@ class ClientTest extends TestCase
     public function connectionToUnknownNntpServerShouldFail()
     {
         $loop = new StreamSelectLoop();
-        $dns = $this->createResolverMock();
+        $dns = Phake::mock('React\Dns\Resolver\Resolver');
 
         $client = Client::factory($loop, $dns);
         $client->connect('127.0.0.1', 9999)
@@ -74,29 +75,15 @@ class ClientTest extends TestCase
      */
     public function runAndStopShouldCallLoopInstanceMethods()
     {
-        $loop = $this->createLoopMock();
-        $loop->expects($this->once())->method('run');
-        $loop->expects($this->once())->method('stop');
-
-        $dns = $this->createResolverMock();
+        $loop = Phake::mock('React\EventLoop\StreamSelectLoop');
+        $dns = Phake::mock('React\Dns\Resolver\Resolver');
 
         $client = Client::factory($loop, $dns);
 
         $client->run();
         $client->stop();
-    }
 
-    private function createLoopMock()
-    {
-        return $this->getMockBuilder('React\EventLoop\StreamSelectLoop')
-                    ->disableOriginalConstructor()
-                    ->getMock();
-    }
-
-    private function createResolverMock()
-    {
-        return $this->getMockBuilder('React\Dns\Resolver\Resolver')
-                    ->disableOriginalConstructor()
-                    ->getMock();
+        Phake::verify($loop, Phake::times(1))->run();
+        Phake::verify($loop, Phake::times(1))->stop();
     }
 }
