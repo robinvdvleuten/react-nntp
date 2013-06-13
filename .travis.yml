@@ -25,5 +25,3 @@ script:
 
 after_script:
     - php bin/coveralls
-    # or enable logging
-    # - php bin/coveralls -v
