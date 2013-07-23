@@ -1,15 +1,14 @@
 {
     "name": "rvdv/react-nntp",
     "description": "Network News Transfer Protocol (NNTP) bindings for React.",
+    "type": "library",
+    "license": "MIT",
     "authors": [
         {
             "name": "Robin van der Vleuten",
             "email": "robinvdvleuten@gmail.com"
         }
     ],
-    "type": "library",
-    "license": "MIT",
-    "minimum-stability": "dev",
     "require": {
         "php": ">=5.4.0",
         "evenement/evenement": "1.0.*",
