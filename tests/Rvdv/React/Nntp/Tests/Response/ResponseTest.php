@@ -1,6 +1,6 @@
 <?php
 
-namespace Rvdv\React\Tests\Nntp\Response;
+namespace Rvdv\React\Nntp\Tests\Response;
 
 use Rvdv\React\Nntp\Response\Response;
 

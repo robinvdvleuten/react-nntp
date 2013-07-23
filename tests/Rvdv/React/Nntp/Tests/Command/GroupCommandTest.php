@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Rvdv\React\Tests\Nntp\Command;
+namespace Rvdv\React\Nntp\Tests\Command;
 
 use Phake;
 use Rvdv\React\Nntp\Command\GroupCommand;

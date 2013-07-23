@@ -1,11 +1,11 @@
 <?php
 
-namespace Rvdv\React\Tests\Nntp\Command;
+namespace Rvdv\React\Nntp\Tests\Command;
 
 use Phake;
-use Rvdv\React\Nntp\Command\OverviewCommand;
+use Rvdv\React\Nntp\Command\OverviewFormatCommand;
 
-class OverviewCommandTest extends \PHPUnit_Framework_TestCase
+class OverviewFormatCommandTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @test
@@ -14,7 +14,7 @@ class OverviewCommandTest extends \PHPUnit_Framework_TestCase
     {
         $stream = Phake::mock('React\Stream\Stream');
 
-        $command = new OverviewCommand($stream, 10, array());
+        $command = new OverviewFormatCommand($stream);
 
         $this->assertTrue($command->expectsMultilineResponse());
     }
@@ -26,7 +26,7 @@ class OverviewCommandTest extends \PHPUnit_Framework_TestCase
     {
         $stream = Phake::mock('React\Stream\Stream');
 
-        $command = new OverviewCommand($stream, 10, array());
+        $command = new OverviewFormatCommand($stream);
 
         $this->assertNull($command->getResult());
     }

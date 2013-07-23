@@ -1,11 +1,11 @@
 <?php
 
-namespace Rvdv\React\Tests\Nntp\Command;
+namespace Rvdv\React\Nntp\Tests\Command;
 
 use Phake;
-use Rvdv\React\Nntp\Command\OverviewFormatCommand;
+use Rvdv\React\Nntp\Command\AuthInfoCommand;
 
-class OverviewFormatCommandTest extends \PHPUnit_Framework_TestCase
+class AuthInfoCommandTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @test
@@ -14,9 +14,9 @@ class OverviewFormatCommandTest extends \PHPUnit_Framework_TestCase
     {
         $stream = Phake::mock('React\Stream\Stream');
 
-        $command = new OverviewFormatCommand($stream);
+        $command = new AuthInfoCommand($stream, 'type', 'value');
 
-        $this->assertTrue($command->expectsMultilineResponse());
+        $this->assertFalse($command->expectsMultilineResponse());
     }
 
     /**
@@ -26,7 +26,7 @@ class OverviewFormatCommandTest extends \PHPUnit_Framework_TestCase
     {
         $stream = Phake::mock('React\Stream\Stream');
 
-        $command = new OverviewFormatCommand($stream);
+        $command = new AuthInfoCommand($stream, 'type', 'value');
 
         $this->assertNull($command->getResult());
     }

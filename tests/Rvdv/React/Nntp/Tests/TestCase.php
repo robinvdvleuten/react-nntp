@@ -1,6 +1,6 @@
 <?php
 
-namespace Rvdv\React\Tests\Nntp;
+namespace Rvdv\React\Nntp\Tests;
 
 class TestCase extends \PHPUnit_Framework_TestCase
 {
@@ -36,6 +36,6 @@ class TestCase extends \PHPUnit_Framework_TestCase
 
     protected function createCallableMock()
     {
-        return $this->getMock('Rvdv\React\Tests\Nntp\Stub\CallableStub');
+        return $this->getMock('Rvdv\React\Nntp\Tests\Stub\CallableStub');
     }
 }

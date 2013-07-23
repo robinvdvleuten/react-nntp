@@ -1,13 +1,13 @@
 <?php
 
-namespace Rvdv\React\Tests\Nntp\Connection;
+namespace Rvdv\React\Nntp\Tests\Connection;
 
 use Phake;
 use React\EventLoop\StreamSelectLoop;
 use React\Socket\ConnectionInterface;
 use React\Socket\Server;
 use Rvdv\React\Nntp\Connection\Connection;
-use Rvdv\React\Tests\Nntp\TestCase;
+use Rvdv\React\Nntp\Tests\TestCase;
 
 class ConnectionTest extends TestCase
 {

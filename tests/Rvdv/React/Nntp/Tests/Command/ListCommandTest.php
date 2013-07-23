@@ -1,6 +1,6 @@
 <?php
 
-namespace Rvdv\React\Tests\Nntp\Command;
+namespace Rvdv\React\Nntp\Tests\Command;
 
 use Phake;
 use Rvdv\React\Nntp\Command\ListCommand;

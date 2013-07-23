@@ -1,6 +1,6 @@
 <?php
 
-namespace Rvdv\React\Tests\Nntp;
+namespace Rvdv\React\Nntp\Tests;
 
 use Phake;
 use React\EventLoop\StreamSelectLoop;

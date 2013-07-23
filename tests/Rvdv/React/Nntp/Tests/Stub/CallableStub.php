@@ -1,6 +1,6 @@
 <?php
 
-namespace Rvdv\React\Tests\Nntp\Stub;
+namespace Rvdv\React\Nntp\Tests\Stub;
 
 class CallableStub
 {
