@@ -18,25 +18,23 @@ namespace Rvdv\React\Nntp\Response;
  */
 interface ResponseInterface
 {
-    // Connection response codes
     const SERVICE_AVAILABLE_POSTING_ALLOWED    = 200;
     const SERVICE_AVAILABLE_POSTING_PROHIBITED = 201;
-    const SERVICE_TEMPORARILY_UNAVAILABLE      = 400;
+    const CONNECTION_CLOSING                   = 205;
+    const GROUP_SUCCESSFULLY_SELECTED          = 211;
+
+    const SERVICE_UNAVAILABLE                  = 400;
+    const NO_SUCH_NEWSGROUP                    = 411;
+
+    const SYNTAX_ERROR_IN_COMMAND              = 501;
     const SERVICE_PERMANENTLY_UNAVAILABLE      = 502;
 
-    // Quit command response codes
-    const CONNECTION_CLOSING                   = 205;
-
-    // Group command response codes
-    const GROUP_SUCCESSFULLY_SELECTED          = 211;
-    const NO_SUCH_NEWSGROUP                    = 411;
 
     // Connection constants
     const SLAVE_RECOGNIZED              = 202;
 
     // Common error constants
     const UNKNOWN_COMMAND               = 500;
-    const SYNTAX_ERROR                  = 501;
     const NOT_PERMITTED                 = 502;
     const NOT_SUPPORTED                 = 503;
 

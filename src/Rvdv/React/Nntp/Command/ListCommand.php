@@ -57,7 +57,7 @@ class ListCommand extends Command implements CommandInterface
             ResponseInterface::GROUPS_FOLLOW => [
                 $this, 'handleGroupsFollowResponse'
             ],
-            ResponseInterface::SYNTAX_ERROR => [
+            ResponseInterface::SYNTAX_ERROR_IN_COMMAND => [
                 $this, 'handleErrorResponse',
             ],
             ResponseInterface::NOT_SUPPORTED => [

@@ -55,7 +55,7 @@ class ListCommandTest extends \PHPUnit_Framework_TestCase
         $handlers = $command->getResponseHandlers();
 
         $this->assertArrayHasKey(ResponseInterface::GROUPS_FOLLOW, $handlers);
-        $this->assertArrayHasKey(ResponseInterface::SYNTAX_ERROR, $handlers);
+        $this->assertArrayHasKey(ResponseInterface::SYNTAX_ERROR_IN_COMMAND, $handlers);
         $this->assertArrayHasKey(ResponseInterface::NOT_SUPPORTED, $handlers);
     }
 
