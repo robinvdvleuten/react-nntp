@@ -2,9 +2,11 @@
 
 namespace Rvdv\React\Nntp\Command;
 
+use Rvdv\React\Nntp\Article;
 use Rvdv\React\Nntp\Response\MultilineResponseInterface;
 use Rvdv\React\Nntp\Response\ResponseInterface;
 use React\Stream\Stream;
+use Symfony\Component\PropertyAccess\PropertyAccess;
 
 class OverviewCommand extends Command implements CommandInterface
 {
@@ -51,17 +53,17 @@ class OverviewCommand extends Command implements CommandInterface
      */
     public function getResponseHandlers()
     {
-        return [
-            ResponseInterface::OVERVIEW_FOLLOWS => [
+        return array(
+            ResponseInterface::OVERVIEW_FOLLOWS => array(
                 $this, 'handleOverviewFollowsResponse'
-            ],
-            ResponseInterface::NO_SUCH_NEWSGROUP => [
+            ),
+            ResponseInterface::NO_SUCH_NEWSGROUP => array(
                 $this, 'handleErrorResponse'
-            ],
-            ResponseInterface::NO_ARTICLE_SELECTED => [
+            ),
+            ResponseInterface::NO_ARTICLE_SELECTED => array(
                 $this, 'handleErrorResponse'
-            ],
-        ];
+            ),
+        );
     }
 
     /**
@@ -71,15 +73,20 @@ class OverviewCommand extends Command implements CommandInterface
      */
     public function handleOverviewFollowsResponse(MultilineResponseInterface $response)
     {
-        $this->articles = [];
+        $this->articles = array();
+
+        $accessor = PropertyAccess::createPropertyAccessor();
 
         foreach ($response->getLines() as $line) {
             $articleParts = explode("\t", $line);
 
             $field = 0;
-            $article = [];
+            $article = new Article();
+
             foreach ($this->format as $name => $full) {
-                $article[$name] = $full ? ltrim(substr($articleParts[$field], strpos($articleParts[$field], ':') + 1), " \t") : $articleParts[$field];
+                $value = $full ? ltrim(substr($articleParts[$field], strpos($articleParts[$field], ':') + 1), " \t") : $articleParts[$field];
+                $accessor->setValue($article, $name, $value);
+
                 $field++;
             }
 
