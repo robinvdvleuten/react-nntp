@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of React NNTP.
+ *
+ * (c) Robin van der Vleuten <robinvdvleuten@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Rvdv\React\Nntp\Command;
 
 use Rvdv\React\Nntp\Article;
@@ -8,6 +17,11 @@ use Rvdv\React\Nntp\Response\ResponseInterface;
 use React\Stream\Stream;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 
+/**
+ * OverviewCommand
+ *
+ * @author Robin van der Vleuten <robinvdvleuten@gmail.com>
+ */
 class OverviewCommand extends Command implements CommandInterface
 {
     protected $articles;

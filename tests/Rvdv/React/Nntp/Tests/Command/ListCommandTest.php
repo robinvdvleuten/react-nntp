@@ -1,11 +1,25 @@
 <?php
 
+/*
+ * This file is part of React NNTP.
+ *
+ * (c) Robin van der Vleuten <robinvdvleuten@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Rvdv\React\Nntp\Tests\Command;
 
 use Phake;
 use Rvdv\React\Nntp\Command\ListCommand;
 use Rvdv\React\Nntp\Response\ResponseInterface;
 
+/**
+ * ListCommandTest
+ *
+ * @author Robin van der Vleuten <robinvdvleuten@gmail.com>
+ */
 class ListCommandTest extends \PHPUnit_Framework_TestCase
 {
     /**

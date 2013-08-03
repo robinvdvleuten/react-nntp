@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of React NNTP.
+ *
+ * (c) Robin van der Vleuten <robinvdvleuten@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Rvdv\React\Nntp\Tests\Connection;
 
 use Phake;
@@ -9,6 +18,11 @@ use React\Socket\Server;
 use Rvdv\React\Nntp\Connection\Connection;
 use Rvdv\React\Nntp\Tests\TestCase;
 
+/**
+ * ConnectionTest
+ *
+ * @author Robin van der Vleuten <robinvdvleuten@gmail.com>
+ */
 class ConnectionTest extends TestCase
 {
     /**

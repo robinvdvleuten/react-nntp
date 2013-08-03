@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the React NNTP component.
+ * This file is part of React NNTP.
  *
  * (c) Robin van der Vleuten <robinvdvleuten@gmail.com>
  *

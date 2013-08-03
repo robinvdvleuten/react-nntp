@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of React NNTP.
+ *
+ * (c) Robin van der Vleuten <robinvdvleuten@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Rvdv\React\Nntp\Command;
 
 use Evenement\EventEmitter;
@@ -12,6 +21,11 @@ use React\Stream\Stream;
 use React\Stream\Util;
 use React\Stream\WritableStreamInterface;
 
+/**
+ * Command
+ *
+ * @author Robin van der Vleuten <robinvdvleuten@gmail.com>
+ */
 abstract class Command extends EventEmitter implements CommandInterface, ReadableStreamInterface, WritableStreamInterface
 {
     private $buffer;
