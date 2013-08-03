@@ -58,6 +58,9 @@ class QuitCommand extends Command implements CommandInterface
             ResponseInterface::CONNECTION_CLOSING => array(
                 $this, 'handleConnectionClosingResponse',
             ),
+            ResponseInterface::SYNTAX_ERROR_IN_COMMAND => array(
+                $this, 'handleErrorResponse',
+            ),
         );
     }
 
