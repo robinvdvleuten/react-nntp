@@ -70,8 +70,8 @@ class Connection
 
     public function executeCommand($command, $arguments)
     {
-        $class = sprintf('React\\Nntp\\Command\\%sCommand', str_replace(" ", "", ucwords(strtr($command, "_-", "  "))));
-        if (!class_exists($class) || !in_array('React\\Nntp\\Command\\CommandInterface', class_implements($class))) {
+        $class = sprintf('Rvdv\\React\\Nntp\\Command\\%sCommand', str_replace(" ", "", ucwords(strtr($command, "_-", "  "))));
+        if (!class_exists($class) || !in_array('Rvdv\\React\\Nntp\\Command\\CommandInterface', class_implements($class))) {
             throw new RuntimeException(sprintf(
                 "Given command '%s' is mapped to a non-existing class (%s).",
                 $command,
