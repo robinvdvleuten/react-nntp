@@ -97,7 +97,13 @@ class GroupCommand extends Command implements CommandInterface
      */
     public function handleGroupSelectedResponse(ResponseInterface $response)
     {
+        $this->group = new Group();
+
         list($count, $first, $last, $name) = explode(' ', $response->getMessage());
-        $this->group = new Group($name, $count, $first, $last);
+
+        $this->group->setName($name)
+                    ->setCount($count)
+                    ->setFirst($first)
+                    ->setLast($last);
     }
 }

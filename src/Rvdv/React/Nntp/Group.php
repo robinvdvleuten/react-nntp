@@ -20,22 +20,21 @@ class Group
 {
     protected $active;
     protected $count;
+    protected $created;
+    protected $createdBy;
     protected $first;
     protected $last;
     protected $name;
 
-    public function __construct($name, $count, $first, $last, $active = true)
-    {
-        $this->name = $name;
-        $this->count = $count;
-        $this->first = $first;
-        $this->last = $last;
-        $this->active = $active;
-    }
-
     public function getActive()
     {
         return $this->active;
+    }
+
+    public function setActive($active)
+    {
+        $this->active = $active;
+        return $this;
     }
 
     public function getCount()
@@ -43,9 +42,43 @@ class Group
         return $this->count;
     }
 
+    public function setCount($count)
+    {
+        $this->count = $count;
+        return $this;
+    }
+
+    public function getCreated()
+    {
+        return $this->created;
+    }
+
+    public function setCreated($created)
+    {
+        $this->created = $created;
+        return $this;
+    }
+
+    public function getCreatedBy()
+    {
+        return $this->$createdBy;
+    }
+
+    public function setCreatedBy($createdBy)
+    {
+        $this->createdBy = $createdBy;
+        return $this;
+    }
+
     public function getFirst()
     {
         return $this->first;
+    }
+
+    public function setFirst($first)
+    {
+        $this->first = $first;
+        return $this;
     }
 
     public function getLast()
@@ -53,8 +86,20 @@ class Group
         return $this->last;
     }
 
+    public function setLast($last)
+    {
+        $this->last = $last;
+        return $this;
+    }
+
     public function getName()
     {
         return $this->name;
+    }
+
+    public function setName($name)
+    {
+        $this->name = $name;
+        return $this;
     }
 }
