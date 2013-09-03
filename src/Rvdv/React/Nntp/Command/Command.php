@@ -13,6 +13,7 @@ namespace Rvdv\React\Nntp\Command;
 
 use Evenement\EventEmitter;
 use Rvdv\React\Nntp\Exception\BadResponseException;
+use Rvdv\React\Nntp\Exception\NotImplementedMethodException;
 use Rvdv\React\Nntp\Response\MultilineResponse;
 use Rvdv\React\Nntp\Response\Response;
 use Rvdv\React\Nntp\Response\ResponseInterface;
@@ -92,12 +93,12 @@ abstract class Command extends EventEmitter implements CommandInterface, Readabl
 
     public function pause()
     {
-
+        throw new NotImplementedMethodException(__FUNCTION__);
     }
 
     public function resume()
     {
-
+        throw new NotImplementedMethodException(__FUNCTION__);
     }
 
     public function pipe(WritableStreamInterface $dest, array $options = array())
@@ -147,8 +148,7 @@ abstract class Command extends EventEmitter implements CommandInterface, Readabl
 
     public function handleDrain()
     {
-        var_dump(__CLASS__);
-        var_dump(__FUNCTION__);
+        throw new NotImplementedMethodException(__FUNCTION__);
     }
 
     public function handleData($data)
@@ -197,14 +197,12 @@ abstract class Command extends EventEmitter implements CommandInterface, Readabl
 
     public function handleEnd()
     {
-        var_dump(__CLASS__);
-        var_dump(__FUNCTION__);
+        throw new NotImplementedMethodException(__FUNCTION__);
     }
 
     public function handleError()
     {
-        var_dump(__CLASS__);
-        var_dump(__FUNCTION__);
+        throw new NotImplementedMethodException(__FUNCTION__);
     }
 
     public function handleResponse(ResponseInterface $response)

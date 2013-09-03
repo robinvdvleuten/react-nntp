@@ -55,6 +55,7 @@ class GroupCommand extends Command implements CommandInterface
      */
     public function execute()
     {
+        var_dump("GROUP ".$this->name."\r\n");
         return $this->end("GROUP ".$this->name."\r\n");
     }
 
@@ -99,6 +100,7 @@ class GroupCommand extends Command implements CommandInterface
     {
         $this->group = new Group();
 
+        var_dump($response->getMessage());
         list($count, $first, $last, $name) = explode(' ', $response->getMessage());
 
         $this->group->setName($name)
