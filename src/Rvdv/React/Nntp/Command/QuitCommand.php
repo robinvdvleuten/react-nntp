@@ -12,7 +12,6 @@
 namespace Rvdv\React\Nntp\Command;
 
 use Rvdv\React\Nntp\Response\ResponseInterface;
-use React\Stream\Stream;
 
 /**
  * QuitCommand

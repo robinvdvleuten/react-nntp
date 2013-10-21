@@ -35,8 +35,9 @@ $client
     })
     ->then(function (CommandInterface $command) use ($client) {
         $articles = $command->getResult();
-        // Process the articles further.
-        var_dump($articles);
+
+        // Process the articles further
+        // ...
 
         $client->stop();
     });

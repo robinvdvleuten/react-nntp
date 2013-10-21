@@ -27,8 +27,6 @@ class Client
 {
     private $connection;
     private $loop;
-    private $secureConnector;
-    private $stream;
 
     /**
      * Constructor.

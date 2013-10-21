@@ -12,8 +12,6 @@
 namespace Rvdv\React\Nntp\Connection;
 
 use React\EventLoop\LoopInterface;
-use Rvdv\React\Nntp\Command\Command;
-use Rvdv\React\Nntp\Command\CommandInterface;
 use Rvdv\React\Nntp\Exception\BadResponseException;
 use Rvdv\React\Nntp\Response\Response;
 use Rvdv\React\Nntp\Response\ResponseInterface;
