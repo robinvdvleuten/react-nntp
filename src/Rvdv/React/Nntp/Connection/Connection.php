@@ -120,7 +120,6 @@ class Connection
     public function handleConnect(Stream $stream)
     {
         $this->stream = $stream;
-        // @todo make this configurable.
         $this->stream->bufferSize = 1024;
 
         $response = new Response();
