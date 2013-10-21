@@ -11,13 +11,13 @@
     ],
     "require": {
         "php": ">=5.4.0",
-        "evenement/evenement": "1.0.*",
-        "react/react": "0.3.*",
-        "react/promise": "1.0.*",
-        "symfony/property-access": "2.3.*"
+        "evenement/evenement": "~1.0",
+        "react/react": "~0.3",
+        "react/promise": "~1.0",
+        "symfony/property-access": "~2.3"
     },
     "require-dev": {
-        "phpunit/phpunit": "3.7.*",
+        "phpunit/phpunit": "~3.7",
         "phake/phake": "2.0.*@dev",
         "satooshi/php-coveralls": "dev-master"
     },
