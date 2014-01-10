@@ -23,7 +23,7 @@ class NotImplementedMethodException extends \RuntimeException
     /**
      * Constructor.
      */
-    public function __construct(method)
+    public function __construct($method)
     {
         parent::__construct(sprintf('%s is not implemented yet', $method));
     }
